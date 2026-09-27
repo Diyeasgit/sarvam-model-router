@@ -118,7 +118,7 @@ After fallbacks, 3.2% of router requests still ended with an unresolved issue: m
 
 ## 6. Deploying inside a customer VPC or an air-gapped rack
 
-The router is **about 600 lines of Python with no external dependencies** and makes no calls home, which is exactly what an air-gapped deployment needs.
+The router is **under 1,000 lines of Python with no external dependencies** and makes no calls home, which is exactly what an air-gapped deployment needs.
 
 - **Customer VPC:** run the router as a stateless service (a container behind the customer's load balancer) in front of models served in the same VPC (vLLM or TGI for Sarvam and Llama models) and, if policy allows, a private-link connection to one frontier API. Scale by adding router replicas. The router is cheap; the GPUs are the cost.
 - **Air-gapped:** there is no frontier API, so the top tier becomes the **largest open-weight model on the rack**. The same policy applies with a different model list in `config.py`. Price per token becomes **GPU-seconds per token**. The router then optimises GPU utilisation rather than an API bill, often freeing a GPU for another workload.
