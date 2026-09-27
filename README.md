@@ -2,7 +2,7 @@
 
 **The pitch in one line:** send each request to the cheapest model that is good enough for it, check the answer, and escalate one tier up when something visibly goes wrong.
 
-> **Honest caveat.** No API keys were available while this was built, so the three models are played by a seeded **simulator** with stated assumptions about each model's skill and speed (`router/backends.py`). The code to call the real models is included but was not run. What this proves is the **routing method and the measurement harness**, not a final savings number. Running on real models should need only API keys and a rerun (see "How to run").
+> **Honest caveat.** No API keys were available while this was built, so the three models are played by a seeded **simulator** with stated assumptions about each model's skill and speed (`router/backends.py`). The code to call the real models is included but was not run. What this proves is the **routing method and the measurement harness**, not a final savings number. Running on real models should need only API keys and a rerun.
 
 ---
 
