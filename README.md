@@ -259,10 +259,6 @@ That works at today's volume, but the bill grows with every workload you add, an
 
 **Win where language, sovereignty or deployment decides the deal. Don't fight for English-only, cloud-native traffic.**
 
-### 6.
-
-*(Question 6 was missing from the copy of the brief we worked from; to be added.)*
-
 ### 7. One Indian segment: first workload, week-two proof, path to ₹10 crore
 
 **Segment:** BFSI contact centres, meaning collections and service at private banks and NBFCs.
