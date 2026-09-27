@@ -100,7 +100,6 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
 - **Customer VPC:** Sarvam 105B and GLM-5.3 run inside the VPC. Opus 5 is reached over a private link only if the bank's policy allows it. A per-use-case "never leave the VPC" rule could be added to the same contract table.
 - **Air-gapped:** there is no frontier API, so the top tier becomes the largest model on the rack. The policy stays the same; only the model list changes. Cost per token becomes GPU time per token, and routing frees GPUs for other workloads.
 - **Staying calibrated without data leaving:** logs stay on-site. A monthly job re-scores a sample of the bank's own traffic, graded by their QA team, and updates the pass-rate table. Only aggregate pass rates change.
-- **Controls banks will ask for:** per-use-case bars and pins, and a full decision log. Pinning a use case to one model is a one-line settings change.
 
 ## The data
 
@@ -115,26 +114,6 @@ All test data is **plain text in the repo**: one CSV file, [`data/prompts.csv`](
 - Prices are the Part 2 list prices. Speeds (time to first word: Sarvam 350 ms, GLM 500 ms, Opus 1,100 ms) and failure rates are estimates. All of them are in `router/config.py`.
 - Indian-language text is billed as more tokens on GLM and Opus than on Sarvam (the tokenizer effect). Part 2 conservatively ignores this.
 - A voice turn has 1.5 s end to end. Timed-out calls bill input tokens only. "Pass" means quality ≥ 0.7.
-
-## How to run
-
-Python 3.9, nothing to install.
-```bash
-python3 calibrate.py     # learn pass rates from the 24 practice prompts
-python3 evaluate.py      # run the 40 test prompts through all configurations → results/summary.md, logs/
-python3 route.py --use-case kyc_extraction "Extract JSON with keys name, amount ..."   # explain one decision
-```
-For real models, set `SARVAM_*`, `OPEN_*` and `FRONTIER_*` (each `_BASE_URL`, `_API_KEY`, `_MODEL`; any OpenAI-compatible endpoint), then run `python3 calibrate.py --live && python3 evaluate.py --live`.
-
-| File | What it does |
-|---|---|
-| `router/config.py` | Models, prices, quality bars and pins: every business assumption |
-| `router/features.py` | Step 1: reads a request, works out task, language and difficulty |
-| `router/estimator.py` | Each model's chance of passing, learned from the practice set |
-| `router/policy.py` | Steps 2 and 3: pick the cheapest model over the bar, escalate on problems, log everything |
-| `router/quality.py` | The run-time checks (drive fallbacks) and the offline scoring (drives the report) |
-| `router/backends.py` | Real-model client and the simulator |
-| `data/prompts.csv` | The 64 test and practice prompts |
 
 ---
 
