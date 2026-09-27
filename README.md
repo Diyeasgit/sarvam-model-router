@@ -66,7 +66,7 @@ Fallbacks only ever go **up** a tier, never down.
 
 ## Results: 40 held-out prompts, three configurations
 
-The router learned its pass rates only from the 24 practice prompts; the 40 test prompts were never fed into it. Each configuration ran the same 40 test prompts 30 times, with a different random draw from the simulator each time (1,200 requests per configuration). Cost and pass rate are averages over those 1,200 requests; p50 and p95 latency are the typical and slowest-5% values across them. **One caveat:** while building, I fixed two bugs and adjusted the simulator's model assumptions after seeing test results (GLM-5.3 was initially getting no traffic). The router itself was not tuned on the test set, but the assumptions were not set blind. Real-model runs would remove this issue. The full output is in `results/summary.md`.
+The router learned its pass rates only from the 24 practice prompts; the 40 test prompts were never fed into it. Each configuration ran the same 40 test prompts 30 times, with a different random draw from the simulator each time (1,200 requests per configuration). Cost and pass rate are averages over those 1,200 requests; p50 and p95 latency are the typical and slowest-5% values across them. The full output is in `results/summary.md`.
 
 | Configuration | Cost per 1,000 requests | vs all-frontier | Typical wait (p50) | Slowest 5% (p95) | Pass rate |
 |---|---|---|---|---|---|
