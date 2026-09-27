@@ -96,6 +96,7 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
 
 ## Scaling inside a customer VPC or an air-gapped rack
 
+- **Stack:** Python 3.9 standard library only; models are called through any OpenAI-compatible API.
 - **It's small and self-contained.** The router is about 750 lines of Python with no outside libraries and no calls home. It runs as a small service in front of the models, and scaling means adding copies of it; the GPUs are the real cost.
 - **Customer VPC:** Sarvam 105B and GLM-5.3 run inside the VPC. Opus 5 is reached over a private link only if the bank's policy allows it. A per-use-case "never leave the VPC" rule could be added to the same contract table.
 - **Air-gapped:** there is no frontier API, so the top tier becomes the largest model on the rack. The policy stays the same; only the model list changes. Cost per token becomes GPU time per token, and routing frees GPUs for other workloads.
