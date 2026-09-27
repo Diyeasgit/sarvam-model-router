@@ -10,7 +10,7 @@
 
 ## How it decides
 
-**The policy in one paragraph.** If the request's use case is on the contract's pin list, it goes straight to the pinned model: voice goes to Sarvam 105B for speed, compliance review goes to Opus 5 for stakes. Otherwise the router reads the request and notes the task, the language and a 1–5 difficulty score. If those rules are unsure, it asks Sarvam 105B for a second opinion. It then looks up each model's chance of passing this kind of request, learned from a separate practice set, and sends the request to **the cheapest model whose chance clears the use case's quality bar**. After the answer comes back, quick checks look for a timeout, refusal, broken JSON or wrong language. If one fires, the request escalates one tier up, at most twice.
+If the request's use case is on the contract's pin list, it goes straight to the pinned model: voice goes to Sarvam 105B for speed, compliance review goes to Opus 5 for stakes. Otherwise the router reads the request and notes the task, the language and a 1–5 difficulty score. If those rules are unsure, it asks Sarvam 105B for a second opinion. It then looks up each model's chance of passing this kind of request, learned from a separate practice set, and sends the request to **the cheapest model whose chance clears the use case's quality bar**. After the answer comes back, quick checks look for a timeout, refusal, broken JSON or wrong language. If one fires, the request escalates one tier up, at most twice.
 
 
 **The quality bars and pins are contract terms**, the same ones in Part 3 Q3. They live in one table (`router/config.py`), so a customer can change them without touching code:
