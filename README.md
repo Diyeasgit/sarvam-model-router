@@ -70,7 +70,7 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
 3. **Indian-language traffic is where the money is.** On Indic and Hinglish prompts the router costs **19%** of frontier, versus 62% on English prompts.
 4. **Where the traffic went:** 73% of requests to Sarvam 105B, 13% to GLM-5.3 and 14% to Opus 5, close to Part 2's 70 / 20 / 10 assumption.
 5. **Typical wait falls from 2.3 s to 0.9 s; the slowest 5% doesn't improve** because compliance reviews are pinned to Opus.
-6. **Forty prompts is a small sample.** The router's pass rate ranged from 90% to 100% across the 30 runs. A real pilot needs the bank's own 500+ graded prompts (Part 3 Q7).
+6. **Forty prompts is a small sample.** The router's pass rate ranged from 90% to 100% across the 30 runs. A real pilot needs the bank's own 500+ graded prompts.
 
 **The router's own cost and latency** are included in every total. The rules take under 1 ms. The LLM second opinion didn't fire on this test set, because the rules were confident on every routed prompt. Real traffic will be messier, so Part 2 budgets ₹500 a month for it.
 
@@ -83,7 +83,7 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
   - **Business outcome:** whether the customer's issue got resolved or the QA analyst saved time.
 - **Pass / fail at 0.7 is blunt.** A 0.69 and a 0.2 both count as "fail".
 - **I wrote both the prompts and the classification rules**, so the rules' accuracy (61 of 64 tasks right) is optimistic.
-- A real pilot fixes this with the bank's QA team blind-grading a sample (Part 3 Q7) and an LLM judge with a written rubric.
+- A real pilot fixes this with the bank's QA team blind-grading a sample and an LLM judge with a written rubric.
 
 ## Trade-offs considered and dropped
 
@@ -102,7 +102,7 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
 - **Customer VPC:** Sarvam 105B and GLM-5.3 run inside the VPC. Opus 5 is reached over a private link only if the bank's policy allows it. A per-use-case "never leave the VPC" rule could be added to the same contract table.
 - **Air-gapped:** there is no frontier API, so the top tier becomes the largest model on the rack. The policy stays the same; only the model list changes. Cost per token becomes GPU time per token, and routing frees GPUs for other workloads.
 - **Staying calibrated without data leaving:** logs stay on-site. A monthly job re-scores a sample of the bank's own traffic, graded by their QA team, and updates the pass-rate table. Only aggregate pass rates change.
-- **Controls banks will ask for:** per-use-case bars and pins, and a full decision log. Pinning a use case to one model is a one-line settings change (Part 3 Q8).
+- **Controls banks will ask for:** per-use-case bars and pins, and a full decision log. Pinning a use case to one model is a one-line settings change.
 
 ## The data
 
