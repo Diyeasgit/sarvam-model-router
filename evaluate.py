@@ -1,9 +1,9 @@
-"""Run the HELD-OUT set through the baselines and the router, and write the report.
+"""Run the 40 held-out prompts through the baselines and the router; write the report.
 
-Policies: always-cheapest, always-frontier, router (with fallback), and
-router-without-fallback (an ablation that shows what the fallback adds).
-The simulator is re-run over many seeds so no result depends on one lucky
-draw; the per-request log for seed 0 is written to logs/.
+Policies: always-cheapest (Sarvam 105B), always-frontier (Opus 5), the router,
+and the router without fallback (shows what the safety net adds). The
+simulator is re-run over 30 seeds so no result depends on one lucky draw. The
+per-request log for seed 0 is written to logs/.
 
     python3 evaluate.py              # simulator, 30 seeds
     python3 evaluate.py --live       # real endpoints, 1 pass
@@ -11,10 +11,10 @@ draw; the per-request log for seed 0 is written to logs/.
 import argparse
 import json
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 
 sys.path.insert(0, ".")
-from data.prompts import HELDOUT
+from data.load import load
 from router import config
 from router.backends import LiveBackend, SimBackend
 from router.estimator import QualityEstimator
@@ -25,13 +25,15 @@ ap.add_argument("--live", action="store_true")
 ap.add_argument("--seeds", type=int, default=30)
 args = ap.parse_args()
 
+HELDOUT = load("heldout")
 est = QualityEstimator.load("results/estimator.json")
 POLICIES = [
-    ("always-cheapest", dict(forced_model=config.CHEAPEST), {}),
-    ("always-frontier", dict(forced_model=config.FRONTIER), {}),
+    ("always-cheapest (Sarvam 105B)", dict(forced_model=config.CHEAPEST), {}),
+    ("always-frontier (Opus 5)", dict(forced_model=config.FRONTIER), {}),
     ("router", {}, {}),
-    ("router-no-fallback", {}, dict(use_fallback=False)),
+    ("router, no fallback", {}, dict(use_fallback=False)),
 ]
+FR, RT = POLICIES[1][0], POLICIES[2][0]
 
 
 def pct(xs, q):
@@ -39,20 +41,16 @@ def pct(xs, q):
     return xs[min(len(xs) - 1, int(round(q * (len(xs) - 1))))]
 
 
-def summarise(logs, n_runs):
+def summ(logs):
     n = len(logs)
     return {
-        "requests": n // n_runs,
-        "cost_usd_per_run": sum(l["cost_usd"] for l in logs) / n_runs,
-        "cost_usd_per_1k_req": sum(l["cost_usd"] for l in logs) / n * 1000,
-        "router_overhead_usd_per_1k": sum(l["router_cost_usd"] for l in logs) / n * 1000,
+        "n": n,
+        "inr_per_1k": sum(l["cost_inr"] for l in logs) / n * 1000,
         "p50_ms": pct([l["latency_ms"] for l in logs], 0.50),
         "p95_ms": pct([l["latency_ms"] for l in logs], 0.95),
-        "mean_quality": sum(l["quality"] for l in logs) / n,
+        "quality": sum(l["quality"] for l in logs) / n,
         "pass_rate": sum(l["passed"] for l in logs) / n,
         "fallback_rate": sum(l["fallback_fired"] for l in logs) / n,
-        "unresolved_issue_rate": sum(1 for l in logs if l["final_issue"]) / n,
-        "final_model_mix": {k: round(v / n, 3) for k, v in Counter(l["final_model"] for l in logs).items()},
     }
 
 
@@ -61,61 +59,87 @@ all_logs = {}
 for name, run_kw, router_kw in POLICIES:
     logs = []
     for s in seeds:
-        backend = LiveBackend() if args.live else SimBackend(seed=1000 + s)
-        router = Router(backend, est, **router_kw)
+        router = Router(LiveBackend() if args.live else SimBackend(seed=1000 + s), est, **router_kw)
         for req in HELDOUT:
             log = router.run(req, **run_kw)
             log["policy"], log["seed"] = name, s
             logs.append(log)
     all_logs[name] = logs
-    with open("logs/%s.jsonl" % name, "w") as fh:
+    fname = name.split(" ")[0].replace(",", "") + ("-no-fallback" if "no fallback" in name else "")
+    with open("logs/%s.jsonl" % fname, "w") as fh:
         for l in logs:
             if l["seed"] == seeds[0]:
                 fh.write(json.dumps(l, ensure_ascii=False) + "\n")
 
-report = {"mode": "live" if args.live else "simulated", "seeds": len(seeds), "policies": {}}
-for name, logs in all_logs.items():
-    report["policies"][name] = {
-        "all": summarise(logs, len(seeds)),
-        "english": summarise([l for l in logs if l["gold_lang"] == "en"], len(seeds)),
-        "indic_or_mixed": summarise([l for l in logs if l["gold_lang"] != "en"], len(seeds)),
-    }
-# seed-to-seed spread of router cost & pass rate (stability check)
-per_seed = {}
-for name, logs in all_logs.items():
-    rows = []
-    for s in seeds:
-        sl = [l for l in logs if l["seed"] == s]
-        rows.append((sum(l["cost_usd"] for l in sl), sum(l["passed"] for l in sl) / len(sl)))
-    per_seed[name] = {"cost_min": min(r[0] for r in rows), "cost_max": max(r[0] for r in rows),
-                      "pass_min": min(r[1] for r in rows), "pass_max": max(r[1] for r in rows)}
-report["per_seed_range"] = per_seed
-json.dump(report, open("results/summary.json", "w"), indent=1)
+S = {name: summ(logs) for name, logs in all_logs.items()}
+fr = S[FR]["inr_per_1k"]
+out = ["# Part 1 results (%s, %d seeds x %d held-out prompts)\n" % ("live" if args.live else "SIMULATED", len(seeds), len(HELDOUT)),
+       "| Policy | Cost per 1,000 requests | vs frontier | p50 latency | p95 latency | Mean quality | Pass rate | Fallback rate |",
+       "|---|---|---|---|---|---|---|---|"]
+for name, a in S.items():
+    out.append("| %s | ₹%.2f | %.0f%% | %.0f ms | %.0f ms | %.2f | %.0f%% | %.1f%% |" % (
+        name, a["inr_per_1k"], 100 * a["inr_per_1k"] / fr, a["p50_ms"], a["p95_ms"],
+        a["quality"], 100 * a["pass_rate"], 100 * a["fallback_rate"]))
 
-# ----------------------------------------------------------------- markdown
-fr = report["policies"]["always-frontier"]["all"]["cost_usd_per_1k_req"]
-out = ["# Results (%s, %d seeds x %d held-out prompts)\n" % (report["mode"], len(seeds), len(HELDOUT)),
-       "| Policy | Cost / 1k req (USD) | Cost / 1k req (INR) | vs frontier | p50 latency | p95 latency | Mean quality | Pass rate | Fallback rate |",
-       "|---|---|---|---|---|---|---|---|---|"]
-for name in all_logs:
-    a = report["policies"][name]["all"]
-    out.append("| %s | $%.4f | ₹%.2f | %.0f%% | %.0f ms | %.0f ms | %.3f | %.1f%% | %.1f%% |" % (
-        name, a["cost_usd_per_1k_req"], a["cost_usd_per_1k_req"] * config.FX_INR_PER_USD,
-        100 * a["cost_usd_per_1k_req"] / fr, a["p50_ms"], a["p95_ms"], a["mean_quality"],
-        100 * a["pass_rate"], 100 * a["fallback_rate"]))
-out.append("\n## By language segment\n")
-out.append("| Policy | Segment | Cost / 1k req | p95 | Pass rate |\n|---|---|---|---|---|")
-for name in all_logs:
-    for seg in ("english", "indic_or_mixed"):
-        a = report["policies"][name][seg]
-        out.append("| %s | %s | $%.4f | %.0f ms | %.1f%% |" % (name, seg, a["cost_usd_per_1k_req"], a["p95_ms"], 100 * a["pass_rate"]))
-r = report["policies"]["router"]["all"]
-out.append("\n## Router details\n")
-out.append("- Final-model mix: " + ", ".join("%s %.0f%%" % (k, 100 * v) for k, v in sorted(r["final_model_mix"].items(), key=lambda kv: -kv[1])))
-out.append("- Router overhead (LLM classifier calls), included above: $%.5f per 1k requests" % r["router_overhead_usd_per_1k"])
-out.append("- Requests ending with an unresolved issue (timeout/refusal after all fallbacks): %.1f%%" % (100 * r["unresolved_issue_rate"]))
-out.append("\n## Seed-to-seed range (cost per 40-prompt run, pass rate)\n")
-for name, v in per_seed.items():
-    out.append("- %s: $%.4f-$%.4f, pass %.0f%%-%.0f%%" % (name, v["cost_min"], v["cost_max"], 100 * v["pass_min"], 100 * v["pass_max"]))
+out += ["\n## By language\n", "| Segment | Frontier ₹/1k | Router ₹/1k | Router vs frontier | Pass rate: cheapest / frontier / router |", "|---|---|---|---|---|"]
+for seg, test in [("English", lambda l: l["gold_lang"] == "en"), ("Indian languages + Hinglish", lambda l: l["gold_lang"] != "en")]:
+    a = {k: summ([l for l in v if test(l)]) for k, v in all_logs.items()}
+    ch = POLICIES[0][0]
+    out.append("| %s | ₹%.2f | ₹%.2f | %.0f%% | %.0f%% / %.0f%% / %.0f%% |" % (
+        seg, a[FR]["inr_per_1k"], a[RT]["inr_per_1k"], 100 * a[RT]["inr_per_1k"] / a[FR]["inr_per_1k"],
+        100 * a[ch]["pass_rate"], 100 * a[FR]["pass_rate"], 100 * a[RT]["pass_rate"]))
+
+out += ["\n## By use case (router)\n", "| Use case | Rule | Where the router sent it | Router ₹/1k | Pass rate: frontier / router |", "|---|---|---|---|---|"]
+for uc, rule in config.USE_CASES.items():
+    rl = [l for l in all_logs[RT] if l["use_case"] == uc]
+    fl = [l for l in all_logs[FR] if l["use_case"] == uc]
+    if not rl:
+        continue
+    mix = Counter(l["final_model"] for l in rl)
+    mix_s = ", ".join("%s %.0f%%" % (m, 100 * c / len(rl)) for m, c in mix.most_common())
+    rule_s = ("pinned → %s" % rule["pin"]) if rule["pin"] else ("bar %.0f%%" % (100 * rule["bar"]))
+    out.append("| %s | %s | %s | ₹%.2f | %.0f%% / %.0f%% |" % (
+        uc, rule_s, mix_s, summ(rl)["inr_per_1k"], 100 * summ(fl)["pass_rate"], 100 * summ(rl)["pass_rate"]))
+
+rl = all_logs[RT]
+req_mix = Counter(l["final_model"] for l in rl)
+tok = defaultdict(int)
+for l in rl:
+    for a in l["attempts"]:
+        tok[a["model"]] += a["tokens_in"] + a["tokens_out"]
+tot = sum(tok.values())
+clf = [l for l in rl if l["classifier"] == "llm"]
+out += ["\n## Router details\n",
+        "- Share of requests by final model: " + ", ".join("%s %.0f%%" % (m, 100 * c / len(rl)) for m, c in req_mix.most_common()),
+        "- Share of tokens by model (incl. fallback re-runs): " + ", ".join("%s %.0f%%" % (m, 100 * t / tot) for m, t in sorted(tok.items(), key=lambda kv: -kv[1])),
+        "- Router's own cost, included above: ₹%.3f per 1,000 requests (%.0f%% of router spend)" % (
+            sum(l["router_cost_inr"] for l in rl) / len(rl) * 1000, 100 * sum(l["router_cost_inr"] for l in rl) / sum(l["cost_inr"] for l in rl)),
+        "- Router's own latency: under 1 ms for the rules; the LLM classifier fired on %.0f%% of requests, adding a median %.0f ms on those" % (
+            100 * len(clf) / len(rl), pct([l["router_latency_ms"] for l in clf], 0.5) if clf else 0),
+        "- Requests still failing a check after all fallbacks: %.1f%%" % (100 * sum(1 for l in rl if l["final_issue"]) / len(rl))]
+
+# Part 2 cross-check: apply the router's measured token mix to 50M in / 10M out a month.
+tin, tout = defaultdict(int), defaultdict(int)
+for l in rl:
+    for a in l["attempts"]:
+        tin[a["model"]] += a["tokens_in"]; tout[a["model"]] += a["tokens_out"]
+ti, to = sum(tin.values()), sum(tout.values())
+monthly = sum(50e6 * tin[m] / ti * config.MODELS[m]["price_in"] / 1e6 +
+              10e6 * tout[m] / to * config.MODELS[m]["price_out"] / 1e6 for m in config.MODELS)
+frontier_month = config.price(config.FRONTIER, 50e6, 10e6)
+out += ["\n## Cross-check against Part 2 (50M input + 10M output tokens a month)\n",
+        "- All frontier: ₹%s" % format(round(frontier_month), ","),
+        "- Routed, using the token mix measured on this test set (%s): ₹%s, saving %.0f%%" % (
+            ", ".join("%s %.0f%%" % (m, 100 * (tin[m] + tout[m]) / (ti + to)) for m in config.MODELS),
+            format(round(monthly), ","), 100 * (1 - monthly / frontier_month))]
+
+out += ["\n## Seed-to-seed range (40-prompt run)\n"]
+for name, logs in all_logs.items():
+    per = [[l for l in logs if l["seed"] == s] for s in seeds]
+    c = [sum(l["cost_inr"] for l in p) for p in per]
+    pr = [sum(l["passed"] for l in p) / len(p) for p in per]
+    out.append("- %s: cost ₹%.3f–₹%.3f, pass rate %.0f%%–%.0f%%" % (name, min(c), max(c), 100 * min(pr), 100 * max(pr)))
+
+json.dump(S, open("results/summary.json", "w"), indent=1)
 open("results/summary.md", "w").write("\n".join(out) + "\n")
 print("\n".join(out))

@@ -34,7 +34,7 @@ class Response:
 # --------------------------------------------------------------------------- live
 class LiveBackend:
     """Env vars per model: <PREFIX>_BASE_URL, <PREFIX>_API_KEY, <PREFIX>_MODEL
-    e.g. SARVAM_BASE_URL=https://api.sarvam.ai/v1 SARVAM_MODEL=sarvam-m"""
+    e.g. SARVAM_BASE_URL=https://api.sarvam.ai/v1 SARVAM_MODEL=<sarvam 105b model id>"""
     name = "live"
 
     def complete(self, model, req, timeout_ms):
@@ -83,18 +83,16 @@ class LiveBackend:
 # --------------------------------------------------------------------------- sim
 # Hidden "ground truth" for the simulator. Deliberately not equal to the
 # router's PRIOR_SKILL, so calibration has something real to learn.
-TRUE_SKILL = {"llama-3.1-8b": 2.4, "sarvam-indic": 3.1, "llama-3.3-70b": 3.7, "frontier": 5.0}
+TRUE_SKILL = {"sarvam-105b": 2.9, "glm-5.3": 4.0, "opus-5": 5.0}
 TRUE_LANG = {
-    "llama-3.1-8b": {"indic": -1.4, "mixed": -0.9},
-    "sarvam-indic": {"indic": 0.9, "mixed": 0.7},
-    "llama-3.3-70b": {"indic": -0.7, "mixed": -0.3},
-    "frontier": {"indic": -0.3, "mixed": 0.0},
+    "sarvam-105b": {"indic": 1.2, "mixed": 1.1},
+    "glm-5.3": {"indic": -0.8, "mixed": -0.4},
+    "opus-5": {"indic": -0.2, "mixed": 0.0},
 }
 TRUE_TASK = {
-    "llama-3.1-8b": {"classify": 0.6, "code": -0.4, "reasoning": -0.6, "tool_use": -0.6, "extract": -0.3},
-    "sarvam-indic": {"code": -0.6, "tool_use": -0.8, "translate": 0.5},
-    "llama-3.3-70b": {"code": 0.2},
-    "frontier": {},
+    "sarvam-105b": {"classify": 0.5, "translate": 0.4, "reasoning": -0.4, "code": -0.5, "tool_use": -0.5},
+    "glm-5.3": {"code": 0.3},
+    "opus-5": {},
 }
 DETECTABLE_SHARE = 0.45  # share of failures that are visible (refusal / bad JSON / wrong language)
 

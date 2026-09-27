@@ -1,708 +1,400 @@
 {
  "counts": {
-  "frontier": [
-   180,
+  "glm-5.3": [
+   173,
    192
   ],
-  "frontier|chat": [
-   19,
-   24
+  "glm-5.3|classify": [
+   47,
+   48
   ],
-  "frontier|chat|en": [
-   7,
-   8
-  ],
-  "frontier|chat|en|low": [
-   7,
-   8
-  ],
-  "frontier|chat|indic": [
-   12,
+  "glm-5.3|classify|en": [
+   16,
    16
   ],
-  "frontier|chat|indic|low": [
-   11,
-   15
+  "glm-5.3|classify|en|low": [
+   16,
+   16
   ],
-  "frontier|chat|indic|mid": [
-   1,
-   1
+  "glm-5.3|classify|indic": [
+   15,
+   16
   ],
-  "frontier|classify": [
-   31,
-   32
+  "glm-5.3|classify|indic|low": [
+   15,
+   16
   ],
-  "frontier|classify|en": [
-   23,
+  "glm-5.3|classify|mixed": [
+   16,
+   16
+  ],
+  "glm-5.3|classify|mixed|low": [
+   16,
+   16
+  ],
+  "glm-5.3|en": [
+   59,
+   64
+  ],
+  "glm-5.3|extract": [
+   37,
+   40
+  ],
+  "glm-5.3|extract|en": [
+   24,
    24
   ],
-  "frontier|classify|en|low": [
-   23,
-   24
+  "glm-5.3|extract|en|low": [
+   16,
+   16
   ],
-  "frontier|classify|indic": [
+  "glm-5.3|extract|en|mid": [
    8,
    8
   ],
-  "frontier|classify|indic|low": [
+  "glm-5.3|extract|indic": [
+   6,
+   8
+  ],
+  "glm-5.3|extract|indic|low": [
+   6,
+   8
+  ],
+  "glm-5.3|extract|mixed": [
+   7,
+   8
+  ],
+  "glm-5.3|extract|mixed|low": [
+   7,
+   8
+  ],
+  "glm-5.3|indic": [
+   64,
+   72
+  ],
+  "glm-5.3|mixed": [
+   50,
+   56
+  ],
+  "glm-5.3|reasoning": [
+   4,
+   8
+  ],
+  "glm-5.3|reasoning|en": [
+   4,
+   8
+  ],
+  "glm-5.3|reasoning|en|high": [
+   4,
+   8
+  ],
+  "glm-5.3|summarize": [
+   56,
+   64
+  ],
+  "glm-5.3|summarize|en": [
+   15,
+   16
+  ],
+  "glm-5.3|summarize|en|low": [
+   7,
+   8
+  ],
+  "glm-5.3|summarize|en|mid": [
    8,
    8
   ],
-  "frontier|code": [
+  "glm-5.3|summarize|indic": [
    14,
    16
   ],
-  "frontier|code|en": [
+  "glm-5.3|summarize|indic|low": [
    14,
    16
   ],
-  "frontier|code|en|mid": [
+  "glm-5.3|summarize|mixed": [
+   27,
+   32
+  ],
+  "glm-5.3|summarize|mixed|low": [
+   27,
+   32
+  ],
+  "glm-5.3|translate": [
+   29,
+   32
+  ],
+  "glm-5.3|translate|indic": [
+   29,
+   32
+  ],
+  "glm-5.3|translate|indic|low": [
+   29,
+   32
+  ],
+  "opus-5": [
+   183,
+   192
+  ],
+  "opus-5|classify": [
+   46,
+   48
+  ],
+  "opus-5|classify|en": [
+   16,
+   16
+  ],
+  "opus-5|classify|en|low": [
+   16,
+   16
+  ],
+  "opus-5|classify|indic": [
+   15,
+   16
+  ],
+  "opus-5|classify|indic|low": [
+   15,
+   16
+  ],
+  "opus-5|classify|mixed": [
+   15,
+   16
+  ],
+  "opus-5|classify|mixed|low": [
+   15,
+   16
+  ],
+  "opus-5|en": [
+   61,
+   64
+  ],
+  "opus-5|extract": [
+   39,
+   40
+  ],
+  "opus-5|extract|en": [
+   24,
+   24
+  ],
+  "opus-5|extract|en|low": [
+   16,
+   16
+  ],
+  "opus-5|extract|en|mid": [
+   8,
+   8
+  ],
+  "opus-5|extract|indic": [
+   8,
+   8
+  ],
+  "opus-5|extract|indic|low": [
+   8,
+   8
+  ],
+  "opus-5|extract|mixed": [
+   7,
+   8
+  ],
+  "opus-5|extract|mixed|low": [
+   7,
+   8
+  ],
+  "opus-5|indic": [
+   71,
+   72
+  ],
+  "opus-5|mixed": [
+   51,
+   56
+  ],
+  "opus-5|reasoning": [
+   7,
+   8
+  ],
+  "opus-5|reasoning|en": [
+   7,
+   8
+  ],
+  "opus-5|reasoning|en|high": [
+   7,
+   8
+  ],
+  "opus-5|summarize": [
+   59,
+   64
+  ],
+  "opus-5|summarize|en": [
    14,
    16
   ],
-  "frontier|en": [
-   92,
-   96
+  "opus-5|summarize|en|low": [
+   7,
+   8
   ],
-  "frontier|extract": [
-   24,
-   24
+  "opus-5|summarize|en|mid": [
+   7,
+   8
   ],
-  "frontier|extract|en": [
+  "opus-5|summarize|indic": [
    16,
    16
   ],
-  "frontier|extract|en|low": [
-   8,
-   8
+  "opus-5|summarize|indic|low": [
+   16,
+   16
   ],
-  "frontier|extract|en|mid": [
-   8,
-   8
-  ],
-  "frontier|extract|indic": [
-   8,
-   8
-  ],
-  "frontier|extract|indic|low": [
-   8,
-   8
-  ],
-  "frontier|indic": [
-   58,
-   64
-  ],
-  "frontier|mixed": [
-   30,
+  "opus-5|summarize|mixed": [
+   29,
    32
   ],
-  "frontier|reasoning": [
-   31,
+  "opus-5|summarize|mixed|low": [
+   29,
    32
   ],
-  "frontier|reasoning|en": [
-   16,
-   16
-  ],
-  "frontier|reasoning|en|high": [
-   16,
-   16
-  ],
-  "frontier|reasoning|indic": [
-   8,
-   8
-  ],
-  "frontier|reasoning|indic|mid": [
-   8,
-   8
-  ],
-  "frontier|reasoning|mixed": [
-   7,
-   8
-  ],
-  "frontier|reasoning|mixed|high": [
-   7,
-   8
-  ],
-  "frontier|summarize": [
-   23,
-   24
-  ],
-  "frontier|summarize|en": [
-   8,
-   8
-  ],
-  "frontier|summarize|en|low": [
-   8,
-   8
-  ],
-  "frontier|summarize|mixed": [
-   15,
-   16
-  ],
-  "frontier|summarize|mixed|low": [
-   15,
-   16
-  ],
-  "frontier|tool_use": [
-   16,
-   16
-  ],
-  "frontier|tool_use|en": [
-   8,
-   8
-  ],
-  "frontier|tool_use|en|mid": [
-   8,
-   8
-  ],
-  "frontier|tool_use|mixed": [
-   8,
-   8
-  ],
-  "frontier|tool_use|mixed|high": [
-   8,
-   8
-  ],
-  "frontier|translate": [
-   22,
-   24
-  ],
-  "frontier|translate|indic": [
-   22,
-   24
-  ],
-  "frontier|translate|indic|low": [
-   22,
-   24
-  ],
-  "llama-3.1-8b": [
-   89,
-   192
-  ],
-  "llama-3.1-8b|chat": [
-   13,
-   24
-  ],
-  "llama-3.1-8b|chat|en": [
-   7,
-   8
-  ],
-  "llama-3.1-8b|chat|en|low": [
-   7,
-   8
-  ],
-  "llama-3.1-8b|chat|indic": [
-   6,
-   16
-  ],
-  "llama-3.1-8b|chat|indic|low": [
-   6,
-   15
-  ],
-  "llama-3.1-8b|chat|indic|mid": [
-   0,
-   1
-  ],
-  "llama-3.1-8b|classify": [
-   31,
-   32
-  ],
-  "llama-3.1-8b|classify|en": [
-   24,
-   24
-  ],
-  "llama-3.1-8b|classify|en|low": [
-   24,
-   24
-  ],
-  "llama-3.1-8b|classify|indic": [
-   7,
-   8
-  ],
-  "llama-3.1-8b|classify|indic|low": [
-   7,
-   8
-  ],
-  "llama-3.1-8b|code": [
-   7,
-   16
-  ],
-  "llama-3.1-8b|code|en": [
-   7,
-   16
-  ],
-  "llama-3.1-8b|code|en|mid": [
-   7,
-   16
-  ],
-  "llama-3.1-8b|en": [
-   57,
-   96
-  ],
-  "llama-3.1-8b|extract": [
-   7,
-   24
-  ],
-  "llama-3.1-8b|extract|en": [
-   6,
-   16
-  ],
-  "llama-3.1-8b|extract|en|low": [
-   6,
-   8
-  ],
-  "llama-3.1-8b|extract|en|mid": [
-   0,
-   8
-  ],
-  "llama-3.1-8b|extract|indic": [
-   1,
-   8
-  ],
-  "llama-3.1-8b|extract|indic|low": [
-   1,
-   8
-  ],
-  "llama-3.1-8b|indic": [
-   22,
-   64
-  ],
-  "llama-3.1-8b|mixed": [
-   10,
-   32
-  ],
-  "llama-3.1-8b|reasoning": [
-   1,
-   32
-  ],
-  "llama-3.1-8b|reasoning|en": [
-   1,
-   16
-  ],
-  "llama-3.1-8b|reasoning|en|high": [
-   1,
-   16
-  ],
-  "llama-3.1-8b|reasoning|indic": [
-   0,
-   8
-  ],
-  "llama-3.1-8b|reasoning|indic|mid": [
-   0,
-   8
-  ],
-  "llama-3.1-8b|reasoning|mixed": [
-   0,
-   8
-  ],
-  "llama-3.1-8b|reasoning|mixed|high": [
-   0,
-   8
-  ],
-  "llama-3.1-8b|summarize": [
-   16,
-   24
-  ],
-  "llama-3.1-8b|summarize|en": [
-   6,
-   8
-  ],
-  "llama-3.1-8b|summarize|en|low": [
-   6,
-   8
-  ],
-  "llama-3.1-8b|summarize|mixed": [
-   10,
-   16
-  ],
-  "llama-3.1-8b|summarize|mixed|low": [
-   10,
-   16
-  ],
-  "llama-3.1-8b|tool_use": [
-   6,
-   16
-  ],
-  "llama-3.1-8b|tool_use|en": [
-   6,
-   8
-  ],
-  "llama-3.1-8b|tool_use|en|mid": [
-   6,
-   8
-  ],
-  "llama-3.1-8b|tool_use|mixed": [
-   0,
-   8
-  ],
-  "llama-3.1-8b|tool_use|mixed|high": [
-   0,
-   8
-  ],
-  "llama-3.1-8b|translate": [
-   8,
-   24
-  ],
-  "llama-3.1-8b|translate|indic": [
-   8,
-   24
-  ],
-  "llama-3.1-8b|translate|indic|low": [
-   8,
-   24
-  ],
-  "llama-3.3-70b": [
-   166,
-   192
-  ],
-  "llama-3.3-70b|chat": [
-   24,
-   24
-  ],
-  "llama-3.3-70b|chat|en": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|chat|en|low": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|chat|indic": [
-   16,
-   16
-  ],
-  "llama-3.3-70b|chat|indic|low": [
-   15,
-   15
-  ],
-  "llama-3.3-70b|chat|indic|mid": [
-   1,
-   1
-  ],
-  "llama-3.3-70b|classify": [
-   31,
-   32
-  ],
-  "llama-3.3-70b|classify|en": [
-   23,
-   24
-  ],
-  "llama-3.3-70b|classify|en|low": [
-   23,
-   24
-  ],
-  "llama-3.3-70b|classify|indic": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|classify|indic|low": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|code": [
-   12,
-   16
-  ],
-  "llama-3.3-70b|code|en": [
-   12,
-   16
-  ],
-  "llama-3.3-70b|code|en|mid": [
-   12,
-   16
-  ],
-  "llama-3.3-70b|en": [
-   85,
-   96
-  ],
-  "llama-3.3-70b|extract": [
-   22,
-   24
-  ],
-  "llama-3.3-70b|extract|en": [
-   15,
-   16
-  ],
-  "llama-3.3-70b|extract|en|low": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|extract|en|mid": [
-   7,
-   8
-  ],
-  "llama-3.3-70b|extract|indic": [
-   7,
-   8
-  ],
-  "llama-3.3-70b|extract|indic|low": [
-   7,
-   8
-  ],
-  "llama-3.3-70b|indic": [
-   60,
-   64
-  ],
-  "llama-3.3-70b|mixed": [
-   21,
-   32
-  ],
-  "llama-3.3-70b|reasoning": [
-   16,
-   32
-  ],
-  "llama-3.3-70b|reasoning|en": [
-   11,
-   16
-  ],
-  "llama-3.3-70b|reasoning|en|high": [
-   11,
-   16
-  ],
-  "llama-3.3-70b|reasoning|indic": [
-   5,
-   8
-  ],
-  "llama-3.3-70b|reasoning|indic|mid": [
-   5,
-   8
-  ],
-  "llama-3.3-70b|reasoning|mixed": [
-   0,
-   8
-  ],
-  "llama-3.3-70b|reasoning|mixed|high": [
-   0,
-   8
-  ],
-  "llama-3.3-70b|summarize": [
-   21,
-   24
-  ],
-  "llama-3.3-70b|summarize|en": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|summarize|en|low": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|summarize|mixed": [
-   13,
-   16
-  ],
-  "llama-3.3-70b|summarize|mixed|low": [
-   13,
-   16
-  ],
-  "llama-3.3-70b|tool_use": [
-   16,
-   16
-  ],
-  "llama-3.3-70b|tool_use|en": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|tool_use|en|mid": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|tool_use|mixed": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|tool_use|mixed|high": [
-   8,
-   8
-  ],
-  "llama-3.3-70b|translate": [
-   24,
-   24
-  ],
-  "llama-3.3-70b|translate|indic": [
-   24,
-   24
-  ],
-  "llama-3.3-70b|translate|indic|low": [
-   24,
-   24
-  ],
-  "sarvam-indic": [
-   153,
-   192
-  ],
-  "sarvam-indic|chat": [
-   24,
-   24
-  ],
-  "sarvam-indic|chat|en": [
-   8,
-   8
-  ],
-  "sarvam-indic|chat|en|low": [
-   8,
-   8
-  ],
-  "sarvam-indic|chat|indic": [
-   16,
-   16
-  ],
-  "sarvam-indic|chat|indic|low": [
-   15,
-   15
-  ],
-  "sarvam-indic|chat|indic|mid": [
-   1,
-   1
-  ],
-  "sarvam-indic|classify": [
+  "opus-5|translate": [
    32,
    32
   ],
-  "sarvam-indic|classify|en": [
-   24,
-   24
+  "opus-5|translate|indic": [
+   32,
+   32
   ],
-  "sarvam-indic|classify|en|low": [
-   24,
-   24
+  "opus-5|translate|indic|low": [
+   32,
+   32
   ],
-  "sarvam-indic|classify|indic": [
-   8,
-   8
+  "sarvam-105b": [
+   172,
+   192
   ],
-  "sarvam-indic|classify|indic|low": [
-   8,
-   8
+  "sarvam-105b|classify": [
+   48,
+   48
   ],
-  "sarvam-indic|code": [
-   8,
+  "sarvam-105b|classify|en": [
+   16,
    16
   ],
-  "sarvam-indic|code|en": [
-   8,
+  "sarvam-105b|classify|en|low": [
+   16,
    16
   ],
-  "sarvam-indic|code|en|mid": [
-   8,
+  "sarvam-105b|classify|indic": [
+   16,
    16
   ],
-  "sarvam-indic|en": [
-   70,
-   96
-  ],
-  "sarvam-indic|extract": [
-   20,
-   24
-  ],
-  "sarvam-indic|extract|en": [
-   13,
+  "sarvam-105b|classify|indic|low": [
+   16,
    16
   ],
-  "sarvam-indic|extract|en|low": [
-   8,
-   8
+  "sarvam-105b|classify|mixed": [
+   16,
+   16
   ],
-  "sarvam-indic|extract|en|mid": [
-   5,
-   8
+  "sarvam-105b|classify|mixed|low": [
+   16,
+   16
   ],
-  "sarvam-indic|extract|indic": [
-   7,
-   8
-  ],
-  "sarvam-indic|extract|indic|low": [
-   7,
-   8
-  ],
-  "sarvam-indic|indic": [
-   63,
+  "sarvam-105b|en": [
+   48,
    64
   ],
-  "sarvam-indic|mixed": [
-   20,
-   32
+  "sarvam-105b|extract": [
+   34,
+   40
   ],
-  "sarvam-indic|reasoning": [
-   13,
-   32
-  ],
-  "sarvam-indic|reasoning|en": [
-   4,
-   16
-  ],
-  "sarvam-indic|reasoning|en|high": [
-   4,
-   16
-  ],
-  "sarvam-indic|reasoning|indic": [
-   8,
-   8
-  ],
-  "sarvam-indic|reasoning|indic|mid": [
-   8,
-   8
-  ],
-  "sarvam-indic|reasoning|mixed": [
-   1,
-   8
-  ],
-  "sarvam-indic|reasoning|mixed|high": [
-   1,
-   8
-  ],
-  "sarvam-indic|summarize": [
-   23,
+  "sarvam-105b|extract|en": [
+   19,
    24
   ],
-  "sarvam-indic|summarize|en": [
-   8,
-   8
-  ],
-  "sarvam-indic|summarize|en|low": [
-   8,
-   8
-  ],
-  "sarvam-indic|summarize|mixed": [
+  "sarvam-105b|extract|en|low": [
    15,
    16
   ],
-  "sarvam-indic|summarize|mixed|low": [
-   15,
-   16
-  ],
-  "sarvam-indic|tool_use": [
-   9,
-   16
-  ],
-  "sarvam-indic|tool_use|en": [
-   5,
-   8
-  ],
-  "sarvam-indic|tool_use|en|mid": [
-   5,
-   8
-  ],
-  "sarvam-indic|tool_use|mixed": [
+  "sarvam-105b|extract|en|mid": [
    4,
    8
   ],
-  "sarvam-indic|tool_use|mixed|high": [
-   4,
+  "sarvam-105b|extract|indic": [
+   8,
    8
   ],
-  "sarvam-indic|translate": [
-   24,
-   24
+  "sarvam-105b|extract|indic|low": [
+   8,
+   8
   ],
-  "sarvam-indic|translate|indic": [
-   24,
-   24
+  "sarvam-105b|extract|mixed": [
+   7,
+   8
   ],
-  "sarvam-indic|translate|indic|low": [
-   24,
-   24
+  "sarvam-105b|extract|mixed|low": [
+   7,
+   8
+  ],
+  "sarvam-105b|indic": [
+   72,
+   72
+  ],
+  "sarvam-105b|mixed": [
+   52,
+   56
+  ],
+  "sarvam-105b|reasoning": [
+   3,
+   8
+  ],
+  "sarvam-105b|reasoning|en": [
+   3,
+   8
+  ],
+  "sarvam-105b|reasoning|en|high": [
+   3,
+   8
+  ],
+  "sarvam-105b|summarize": [
+   55,
+   64
+  ],
+  "sarvam-105b|summarize|en": [
+   10,
+   16
+  ],
+  "sarvam-105b|summarize|en|low": [
+   7,
+   8
+  ],
+  "sarvam-105b|summarize|en|mid": [
+   3,
+   8
+  ],
+  "sarvam-105b|summarize|indic": [
+   16,
+   16
+  ],
+  "sarvam-105b|summarize|indic|low": [
+   16,
+   16
+  ],
+  "sarvam-105b|summarize|mixed": [
+   29,
+   32
+  ],
+  "sarvam-105b|summarize|mixed|low": [
+   29,
+   32
+  ],
+  "sarvam-105b|translate": [
+   32,
+   32
+  ],
+  "sarvam-105b|translate|indic": [
+   32,
+   32
+  ],
+  "sarvam-105b|translate|indic|low": [
+   32,
+   32
   ]
  },
  "k": 4.0

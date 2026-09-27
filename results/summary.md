@@ -1,34 +1,46 @@
-# Results (simulated, 30 seeds x 40 held-out prompts)
+# Part 1 results (SIMULATED, 30 seeds x 40 held-out prompts)
 
-| Policy | Cost / 1k req (USD) | Cost / 1k req (INR) | vs frontier | p50 latency | p95 latency | Mean quality | Pass rate | Fallback rate |
-|---|---|---|---|---|---|---|---|---|
-| always-cheapest | $0.0135 | ₹1.19 | 1% | 417 ms | 1274 ms | 0.551 | 42.3% | 0.0% |
-| always-frontier | $1.7987 | ₹158.28 | 100% | 2278 ms | 7529 ms | 0.824 | 90.9% | 0.0% |
-| router | $0.9566 | ₹84.18 | 53% | 1067 ms | 7261 ms | 0.846 | 90.7% | 3.8% |
-| router-no-fallback | $0.8841 | ₹77.80 | 49% | 1061 ms | 6812 ms | 0.830 | 88.8% | 0.0% |
+| Policy | Cost per 1,000 requests | vs frontier | p50 latency | p95 latency | Mean quality | Pass rate | Fallback rate |
+|---|---|---|---|---|---|---|---|
+| always-cheapest (Sarvam 105B) | ₹8.16 | 3% | 913 ms | 2984 ms | 0.80 | 85% | 0.0% |
+| always-frontier (Opus 5) | ₹234.43 | 100% | 2348 ms | 6540 ms | 0.79 | 87% | 0.0% |
+| router | ₹91.46 | 39% | 918 ms | 6478 ms | 0.88 | 97% | 2.2% |
+| router, no fallback | ₹84.68 | 36% | 938 ms | 5851 ms | 0.86 | 95% | 0.0% |
 
-## By language segment
+## By language
 
-| Policy | Segment | Cost / 1k req | p95 | Pass rate |
+| Segment | Frontier ₹/1k | Router ₹/1k | Router vs frontier | Pass rate: cheapest / frontier / router |
 |---|---|---|---|---|
-| always-cheapest | english | $0.0141 | 1324 ms | 51.9% |
-| always-cheapest | indic_or_mixed | $0.0130 | 1158 ms | 33.7% |
-| always-frontier | english | $2.1250 | 8178 ms | 91.8% |
-| always-frontier | indic_or_mixed | $1.5034 | 6041 ms | 90.2% |
-| router | english | $1.4963 | 7932 ms | 91.4% |
-| router | indic_or_mixed | $0.4684 | 5275 ms | 90.0% |
-| router-no-fallback | english | $1.4508 | 7932 ms | 89.6% |
-| router-no-fallback | indic_or_mixed | $0.3715 | 4188 ms | 88.1% |
+| English | ₹339.37 | ₹209.18 | 62% | 63% / 89% / 95% |
+| Indian languages + Hinglish | ₹183.90 | ₹34.78 | 19% | 95% / 86% / 98% |
+
+## By use case (router)
+
+| Use case | Rule | Where the router sent it | Router ₹/1k | Pass rate: frontier / router |
+|---|---|---|---|---|
+| disposition_tagging | bar 85% | sarvam-105b 99%, glm-5.3 1% | ₹2.01 | 97% / 100% |
+| call_summary | bar 85% | sarvam-105b 66%, glm-5.3 29%, opus-5 4% | ₹47.29 | 97% / 94% |
+| kyc_extraction | bar 90% | sarvam-105b 56%, glm-5.3 30%, opus-5 15% | ₹57.67 | 99% / 97% |
+| customer_notices | bar 90% | sarvam-105b 99%, glm-5.3 1% | ₹6.91 | 98% / 100% |
+| voice_agent | pinned → sarvam-105b | sarvam-105b 100% | ₹3.57 | 19% / 100% |
+| compliance_review | pinned → opus-5 | opus-5 100% | ₹679.07 | 88% / 91% |
 
 ## Router details
 
-- Final-model mix: sarvam-indic 43%, frontier 28%, llama-3.1-8b 22%, llama-3.3-70b 7%
-- Router overhead (LLM classifier calls), included above: $0.00110 per 1k requests
-- Requests ending with an unresolved issue (timeout/refusal after all fallbacks): 3.2%
+- Share of requests by final model: sarvam-105b 73%, opus-5 14%, glm-5.3 13%
+- Share of tokens by model (incl. fallback re-runs): sarvam-105b 51%, opus-5 27%, glm-5.3 21%
+- Router's own cost, included above: ₹0.000 per 1,000 requests (0% of router spend)
+- Router's own latency: under 1 ms for the rules; the LLM classifier fired on 0% of requests, adding a median 0 ms on those
+- Requests still failing a check after all fallbacks: 0.6%
 
-## Seed-to-seed range (cost per 40-prompt run, pass rate)
+## Cross-check against Part 2 (50M input + 10M output tokens a month)
 
-- always-cheapest: $0.0005-$0.0006, pass 28%-60%
-- always-frontier: $0.0630-$0.0783, pass 82%-98%
-- router: $0.0272-$0.0481, pass 82%-98%
-- router-no-fallback: $0.0257-$0.0407, pass 78%-100%
+- All frontier: ₹48,100
+- Routed, using the token mix measured on this test set (sarvam-105b 51%, glm-5.3 21%, opus-5 27%): ₹16,700, saving 65%
+
+## Seed-to-seed range (40-prompt run)
+
+- always-cheapest (Sarvam 105B): cost ₹0.304–₹0.347, pass rate 72%–92%
+- always-frontier (Opus 5): cost ₹7.928–₹10.131, pass rate 80%–92%
+- router: cost ₹2.955–₹4.319, pass rate 90%–100%
+- router, no fallback: cost ₹2.532–₹4.013, pass rate 88%–100%

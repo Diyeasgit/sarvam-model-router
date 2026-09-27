@@ -37,10 +37,12 @@ TASK_KEYWORDS = {
                   "to english", "in english:"],
     "classify": ["classify", "label", "intent", "category", "sentiment", "one of",
                  "only the label", "one word", "reply with only", "answer with only",
-                 "इरादा", "लेबल", "भावना", "हेतू", "फक्त"],
+                 "pick one", "disposition", "reply with only the code",
+                 "इरादा", "लेबल", "भावना", "हेतू", "फक्त", "कोड चुनें", "कोड निवडा", "सिर्फ़ कोड"],
     "extract": ["extract", "json", "fields", "schema", "parse", "key-value", "keys:"],
     "summarize": ["summarise", "summarize", "summary", "tl;dr", "key points", "bullet",
-                  "सारांश", "सार", "saaransh"],
+                  "सारांश", "सार", "saaransh", "summarise karo", "summary",
+                  "সংক্ষেপ", "ಸಂಕ್ಷಿಪ್ತ", "సంక్షిప్త", "சுருக்க"],
     "code": ["```", "def ", "python", "sql", "function", "bug", "refactor", "regex",
              "javascript", "select ", "stack trace", "traceback"],
     "reasoning": ["step by step", "calculate", "prove", "compare", "which is cheaper",
@@ -199,6 +201,7 @@ def extract(messages, tools=None, meta=None):
         "channel": meta.get("channel", "text"),
         "latency_budget_ms": meta.get("latency_budget_ms"),
         "sla": meta.get("sla"),
+        "use_case": meta.get("use_case"),
         "classifier": "heuristic",
     }
 

@@ -11,7 +11,7 @@ import argparse
 import sys
 
 sys.path.insert(0, ".")
-from data.prompts import CALIBRATION
+from data.load import load
 from router import config
 from router.backends import LiveBackend, SimBackend
 from router.estimator import QualityEstimator
@@ -22,6 +22,7 @@ ap.add_argument("--live", action="store_true")
 ap.add_argument("--reps", type=int, default=8)
 args = ap.parse_args()
 
+CALIBRATION = load("calibration")
 backend = LiveBackend() if args.live else SimBackend(seed=12345)
 reps = 1 if args.live else args.reps
 est = QualityEstimator()

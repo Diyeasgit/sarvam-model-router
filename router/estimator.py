@@ -19,12 +19,11 @@ from .features import diff_bucket
 
 # Prior skill on a 1-5 difficulty scale, plus language adjustments. These are
 # guesses before calibration and are intentionally coarse.
-PRIOR_SKILL = {"llama-3.1-8b": 2.3, "sarvam-indic": 3.0, "llama-3.3-70b": 3.6, "frontier": 4.8}
+PRIOR_SKILL = {"sarvam-105b": 3.0, "glm-5.3": 3.8, "opus-5": 4.8}
 PRIOR_LANG = {
-    "llama-3.1-8b": {"indic": -1.0, "mixed": -0.6},
-    "sarvam-indic": {"indic": 0.6, "mixed": 0.4},
-    "llama-3.3-70b": {"indic": -0.5, "mixed": -0.2},
-    "frontier": {"indic": -0.2},
+    "sarvam-105b": {"indic": 0.8, "mixed": 0.7},
+    "glm-5.3": {"indic": -0.5, "mixed": -0.2},
+    "opus-5": {"indic": -0.2},
 }
 
 
