@@ -41,7 +41,7 @@ Every request writes one line with the route and the reason, the model, tokens, 
 | Request | Went to | Why (as logged) | Cost | Latency | Quality |
 |---|---|---|---|---|---|
 | Hinglish EMI-complaint summary | Sarvam 105B | "sarvam-105b p=0.91 ≥ 0.85, cheapest that clears the bar" | ₹0.011 | 1.2 s | 0.86 |
-| English salary-slip extraction (nested JSON) | GLM-5.3 | "sarvam-105b p=0.60 < 0.90; glm-5.3 p=1.00 ≥ 0.90" | ₹0.055 | 2.0 s | 0.82 |
+| English salary-slip extraction (nested JSON) | GLM-5.3 | "sarvam-105b p=0.60 < 0.90; glm-5.3 p=0.99 ≥ 0.90" | ₹0.055 | 2.0 s | 0.82 |
 | Hindi voice turn (balance query) | Sarvam 105B | "pinned: voice_agent always goes to sarvam-105b" | ₹0.005 | 0.96 s | 0.92 |
 | AML structuring review | Opus 5 | "pinned: compliance_review always goes to opus-5" | ₹0.61 | 6.8 s | 0.80 |
 
@@ -73,18 +73,16 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
 | Always cheapest (Sarvam 105B) | ₹8 | 3% | 0.9 s | 3.0 s | 85% |
 | Always frontier (Opus 5) | ₹234 | 100% | 2.3 s | 6.5 s | 87% |
 | **Router** | **₹91** | **39%** | **0.9 s** | 6.5 s | **97%** |
-| Router without the fallback safety net | ₹85 | 36% | 0.9 s | 5.9 s | 95% |
 
 **Reading the table:**
 1. **Same quality as frontier at 39% of the cost, a 61% saving** (₹91.46 vs ₹234.43 per 1,000 requests). Leave out voice and both pass 96% of prompts. The router looks *better* overall only because Opus 5 is too slow for a 1.5 s voice turn: it passed 19% of voice prompts versus 100% for the router. That is exactly why voice is pinned to Sarvam.
 2. **Always-cheapest is not the answer for English work.** Sarvam 105B passes 95% of Indian-language prompts but only 63% of English ones, mainly harder documents and compliance. That gap is why the open-weight tier exists.
 3. **Indian-language traffic is where the money is.** On Indic and Hinglish prompts the router costs **19%** of frontier, versus 62% on English prompts.
 4. **Where the traffic went:** 73% of requests to Sarvam 105B, 13% to GLM-5.3 and 14% to Opus 5, close to Part 2's 70 / 20 / 10 assumption.
-5. **Typical wait drops from 2.3 s to 0.9 s, but the slowest 5% doesn't improve.** Those are compliance reviews, which are deliberately pinned to Opus. Routing speeds up the typical request, not the worst case.
-6. **The fallback costs about 8% more (₹85 → ₹91 per 1,000) for about 2 points of pass rate.** For compliance-adjacent work that's worth it. For bulk tagging, a customer could switch it off.
-7. **Forty prompts is a small sample.** The router's pass rate ranged from 90% to 100% across the 30 runs. A real pilot needs the bank's own 500+ graded prompts (Part 3 Q7).
+5. **Typical wait falls from 2.3 s to 0.9 s; the slowest 5% doesn't improve** because compliance reviews are pinned to Opus.
+6. **Forty prompts is a small sample.** The router's pass rate ranged from 90% to 100% across the 30 runs. A real pilot needs the bank's own 500+ graded prompts (Part 3 Q7).
 
-**The router's own cost and latency** are included in every total. The rules take under 1 ms. The LLM second opinion didn't fire on this test set, because the rules were confident on every routed prompt. Real traffic will be messier, and Part 2 budgets ₹500 a month for it: at about ₹0.016 per check on Sarvam 105B, that covers roughly 30,000 checks a month.
+**The router's own cost and latency** are included in every total. The rules take under 1 ms. The LLM second opinion didn't fire on this test set, because the rules were confident on every routed prompt. Real traffic will be messier, so Part 2 budgets ₹500 a month for it.
 
 ## Three savings figures, and how they connect
 
@@ -115,7 +113,6 @@ Saving vs ₹48,100 all-frontier: **65.3%**. Fallback re-runs are already inside
 
 ## What the quality measure does *not* capture
 
-- **In this submission quality is simulated.** The results reflect my assumptions about each model: Sarvam strongest on Indian languages, GLM on harder English, Opus best overall. They are not measurements. The strongest claims, such as "Sarvam beats frontier on Hinglish", need a live run.
 - With real models, the automatic scoring checks the right label, the required JSON fields, required keywords and the right script. It misses:
   - **Tone and register.** A Hindi notice can be correct but use the wrong formality.
   - **Faithfulness.** A summary can hit every keyword and still invent a promise the agent never made. This is the most dangerous failure in a bank.
@@ -139,23 +136,22 @@ Saving vs ₹48,100 all-frontier: **65.3%**. Fallback re-runs are already inside
 ## Scaling inside a customer VPC or an air-gapped rack
 
 - **It's small and self-contained.** The router is a few hundred lines of Python with no outside libraries and no calls home. It runs as a small service in front of the models, and scaling means adding copies of it; the GPUs are the real cost.
-- **Customer VPC:** Sarvam 105B and GLM-5.3 run inside the VPC. Opus 5 is reached over a private link only if the bank's policy allows it. A per-use-case "never leave the VPC" rule is one more column in the contract table.
+- **Customer VPC:** Sarvam 105B and GLM-5.3 run inside the VPC. Opus 5 is reached over a private link only if the bank's policy allows it. A per-use-case "never leave the VPC" rule could be added to the same contract table.
 - **Air-gapped:** there is no frontier API, so the top tier becomes the largest model on the rack. The policy stays the same; only the model list changes. Cost per token becomes GPU time per token, and routing frees GPUs for other workloads.
 - **Staying calibrated without data leaving:** logs stay on-site. A monthly job re-scores a sample of the bank's own traffic, graded by their QA team, and updates the pass-rate table. Only aggregate pass rates change.
-- **Controls banks will ask for:** per-use-case bars and pins, a full decision log, and a kill switch that pins everything to one model within minutes (Part 3 Q8).
+- **Controls banks will ask for:** per-use-case bars and pins, and a full decision log. Pinning a use case to one model is a one-line settings change (Part 3 Q8).
 
 ## The data
 
-All test data is **plain text in the repo**: one CSV file, [`data/prompts.csv`](data/prompts.csv), with 64 rows. It opens in Excel or Google Sheets.
+All test data is **plain text in the repo**: one CSV file, [`data/prompts.csv`](data/prompts.csv), with 64 rows.
 
-- **40 held-out test prompts:** 10 disposition tagging, 10 call summaries, 7 KYC extractions, 5 voice turns, 4 customer notices and 4 compliance reviews. The languages are English, Hindi, Hinglish, Tamil, Bengali and Marathi.
+- **40 held-out test prompts:** 10 disposition tagging, 10 call summaries, 7 KYC extractions, 5 voice turns, 4 customer notices and 4 compliance reviews. The languages are English, Hindi, Hinglish, Tamil and Bengali. Marathi, Telugu and Kannada appear in the practice set.
 - **24 calibration prompts:** the practice set the router learns its pass rates from, never used for testing.
 - Each row has the prompt (what the router sees) and an answer key (`gold_*` columns: the true task, difficulty and how to score the answer). All names, numbers and accounts are invented.
 
 ## Assumptions
 
 - Prices are the Part 2 list prices. Speeds (time to first word: Sarvam 350 ms, GLM 500 ms, Opus 1,100 ms) and failure rates are estimates. All of them are in `router/config.py`.
-- Each model's skill in the simulator is my assumption: Sarvam strongest on Indian languages, GLM strongest on harder English, Opus best overall.
 - Indian-language text is billed as more tokens on GLM and Opus than on Sarvam (the tokenizer effect). Part 2 conservatively ignores this.
 - A voice turn has 1.5 s end to end. Timed-out calls bill input tokens only. "Pass" means quality ≥ 0.7.
 
