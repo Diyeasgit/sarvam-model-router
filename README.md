@@ -2,7 +2,7 @@
 
 A router that sends each LLM request to the **cheapest model that is good enough for it**, checks the answer, and **escalates to a stronger model when something visibly goes wrong**.
 
-> **Read this first: the headline numbers are SIMULATED.** No API keys were available in the build environment, so the models are played by a seeded simulator (`router/backends.py`). The live path, for any OpenAI-compatible endpoint including Sarvam, is implemented but was **not** exercised for this submission. Every price, latency and skill level is an assumption set in one file (`router/config.py`). What this repo proves is the **method and the measurement harness**. It does not prove a specific savings number. Section 7 lists what changes when you plug in real keys.
+> **Read this first: the headline numbers are SIMULATED.** No API keys were available in the build environment, so the models are played by a seeded simulator (`router/backends.py`). The live path, for any OpenAI-compatible endpoint including Sarvam, is implemented but was **not** exercised for this submission. Every price, latency and skill level is an assumption set in one file (`router/config.py`). What this repo proves is the **method and the measurement harness**. It does not prove a specific savings number. Section 7 lists the assumptions; section 8 shows how to run it live.
 
 ---
 
