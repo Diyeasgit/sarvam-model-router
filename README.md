@@ -84,33 +84,6 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
 
 **The router's own cost and latency** are included in every total. The rules take under 1 ms. The LLM second opinion didn't fire on this test set, because the rules were confident on every routed prompt. Real traffic will be messier, so Part 2 budgets ₹500 a month for it.
 
-## Three savings figures, and how they connect
-
-The README quotes three savings figures. They use different assumptions, so they are labelled and kept separate. **None of them is a validated saving;** only a real-model pilot can produce one.
-
-| Label | Saving vs all-frontier | What it is | Where it comes from |
-|---|---|---|---|
-| **Simulated benchmark result** | **61%** | Router vs always-frontier on the 40 test prompts, per request | ₹91.46 vs ₹234.43 per 1,000 requests (table above) |
-| **Reweighted scenario** | **65%** | The benchmark's measured token mix, applied to Part 2's 50M input + 10M output a month | ₹16,700 vs ₹48,100 (table below) |
-| **Planning scenario** | **76.5%** | Part 2's assumed production mix: 70 / 20 / 10 by tokens, plus 5% escalations and a ₹500 classifier budget | ₹11,304 vs ₹48,100 (Part 2) |
-
-**Step 1 → Step 2: from the benchmark to the reweighted scenario.** The benchmark measures cost per request. Part 2 fixes the token volume instead (50M in, 10M out), so the question becomes what share of those tokens each model handles. Across all 1,200 router requests, including fallback re-runs, the measured shares were:
-
-| Model | Share of input tokens | Share of output tokens | Monthly input | Monthly output | Monthly cost |
-|---|---|---|---|---|---|
-| Sarvam 105B | 59.7% | 42.4% | 29.84M × ₹29.28 | 4.24M × ₹73.20 | ₹1,184 |
-| GLM-5.3 | 21.6% | 21.0% | 10.81M × ₹126 | 2.10M × ₹396 | ₹2,192 |
-| Opus 5 | 18.7% | 36.6% | 9.36M × ₹480 | 3.66M × ₹2,410 | ₹13,324 |
-| **Total** | 100% | 100% | 50M | 10M | **₹16,700** |
-
-Saving vs ₹48,100 all-frontier: **65.3%**. Fallback re-runs are already inside these shares. Router overhead is excluded because the LLM classifier did not fire on the test set. `python3 evaluate.py` regenerates this table.
-
-**Step 2 → Step 3: from the reweighted to the planning scenario.** Two assumptions change:
-- **Less compliance work.** The test set deliberately over-samples compliance review (10% of prompts). Those prompts are pinned to Opus and write long answers, which is why Opus takes 36.6% of output tokens above. The planning scenario assumes a production contact centre where Opus handles 10% of tokens, plus a separate 5% escalation buffer.
-- **Router overhead budgeted separately:** ₹500 a month for the classifier.
-
-**How to read the range.** The gap between 65% and 76.5% is almost entirely the question *"how much compliance-grade work does this customer send?"* That is a discovery question for the customer, not something this benchmark can settle.
-
 ## What the quality measure does *not* capture
 
 - With real models, the automatic scoring checks the right label, the required JSON fields, required keywords and the right script. It misses:
