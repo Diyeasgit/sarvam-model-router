@@ -82,8 +82,6 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
   - **Right answer, wrong reasoning** in compliance reviews.
   - **Business outcome:** whether the customer's issue got resolved or the QA analyst saved time.
 - **Pass / fail at 0.7 is blunt.** A 0.69 and a 0.2 both count as "fail".
-- **I wrote both the prompts and the classification rules**, so the rules' accuracy (61 of 64 tasks right) is optimistic.
-- A real pilot fixes this with the bank's QA team blind-grading a sample and an LLM judge with a written rubric.
 
 ## Trade-offs considered and dropped
 
