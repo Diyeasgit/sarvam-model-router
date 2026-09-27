@@ -118,20 +118,28 @@ out += ["\n## Router details\n",
             100 * len(clf) / len(rl), pct([l["router_latency_ms"] for l in clf], 0.5) if clf else 0),
         "- Requests still failing a check after all fallbacks: %.1f%%" % (100 * sum(1 for l in rl if l["final_issue"]) / len(rl))]
 
-# Part 2 cross-check: apply the router's measured token mix to 50M in / 10M out a month.
+# Reweighted scenario: apply the router's measured input and output token shares
+# (all attempts, incl. fallback re-runs, across all seeds) to 50M in / 10M out a month.
 tin, tout = defaultdict(int), defaultdict(int)
 for l in rl:
     for a in l["attempts"]:
         tin[a["model"]] += a["tokens_in"]; tout[a["model"]] += a["tokens_out"]
 ti, to = sum(tin.values()), sum(tout.values())
-monthly = sum(50e6 * tin[m] / ti * config.MODELS[m]["price_in"] / 1e6 +
-              10e6 * tout[m] / to * config.MODELS[m]["price_out"] / 1e6 for m in config.MODELS)
 frontier_month = config.price(config.FRONTIER, 50e6, 10e6)
-out += ["\n## Cross-check against Part 2 (50M input + 10M output tokens a month)\n",
-        "- All frontier: ₹%s" % format(round(frontier_month), ","),
-        "- Routed, using the token mix measured on this test set (%s): ₹%s, saving %.0f%%" % (
-            ", ".join("%s %.0f%%" % (m, 100 * (tin[m] + tout[m]) / (ti + to)) for m in config.MODELS),
-            format(round(monthly), ","), 100 * (1 - monthly / frontier_month))]
+out += ["\n## Reweighted scenario: measured token mix applied to 50M input + 10M output a month\n",
+        "| Model | Share of input tokens | Share of output tokens | Monthly input | Monthly output | Monthly cost |",
+        "|---|---|---|---|---|---|"]
+monthly = 0.0
+for m in config.MODELS:
+    si, so = tin[m] / ti, tout[m] / to
+    c = config.price(m, 50e6 * si, 10e6 * so)
+    monthly += c
+    out.append("| %s | %.1f%% | %.1f%% | %.2fM | %.2fM | ₹%s |" % (
+        m, 100 * si, 100 * so, 50 * si, 10 * so, format(round(c), ",")))
+out += ["| **Total** | 100%% | 100%% | 50M | 10M | **₹%s** |" % format(round(monthly), ","),
+        "\nAll frontier at the same volume: ₹%s. Saving: %.1f%%. Fallback re-runs are already inside the shares; "
+        "router overhead is excluded (the LLM classifier did not fire on this test set)." % (
+            format(round(frontier_month), ","), 100 * (1 - monthly / frontier_month))]
 
 out += ["\n## Seed-to-seed range (40-prompt run)\n"]
 for name, logs in all_logs.items():

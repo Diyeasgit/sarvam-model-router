@@ -33,10 +33,16 @@
 - Router's own latency: under 1 ms for the rules; the LLM classifier fired on 0% of requests, adding a median 0 ms on those
 - Requests still failing a check after all fallbacks: 0.6%
 
-## Cross-check against Part 2 (50M input + 10M output tokens a month)
+## Reweighted scenario: measured token mix applied to 50M input + 10M output a month
 
-- All frontier: ₹48,100
-- Routed, using the token mix measured on this test set (sarvam-105b 51%, glm-5.3 21%, opus-5 27%): ₹16,700, saving 65%
+| Model | Share of input tokens | Share of output tokens | Monthly input | Monthly output | Monthly cost |
+|---|---|---|---|---|---|
+| sarvam-105b | 59.7% | 42.4% | 29.84M | 4.24M | ₹1,184 |
+| glm-5.3 | 21.6% | 21.0% | 10.81M | 2.10M | ₹2,192 |
+| opus-5 | 18.7% | 36.6% | 9.36M | 3.66M | ₹13,324 |
+| **Total** | 100% | 100% | 50M | 10M | **₹16,700** |
+
+All frontier at the same volume: ₹48,100. Saving: 65.3%. Fallback re-runs are already inside the shares; router overhead is excluded (the LLM classifier did not fire on this test set).
 
 ## Seed-to-seed range (40-prompt run)
 

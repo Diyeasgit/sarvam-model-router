@@ -66,7 +66,7 @@ Fallbacks only ever go **up** a tier, never down.
 
 ## Results: 40 held-out prompts, three configurations
 
-The test prompts were never used to tune the router. Each configuration was run 30 times with different random draws, and the averages are shown. The full output is in `results/summary.md`.
+The router learned its pass rates only from the 24 practice prompts; the 40 test prompts were never fed into it. Each configuration ran the same 40 test prompts 30 times, with a different random draw from the simulator each time (1,200 requests per configuration). Cost and pass rate are averages over those 1,200 requests; p50 and p95 latency are the typical and slowest-5% values across them. **One caveat:** while building, I fixed two bugs and adjusted the simulator's model assumptions after seeing test results (GLM-5.3 was initially getting no traffic). The router itself was not tuned on the test set, but the assumptions were not set blind. Real-model runs would remove this issue. The full output is in `results/summary.md`.
 
 | Configuration | Cost per 1,000 requests | vs all-frontier | Typical wait (p50) | Slowest 5% (p95) | Pass rate |
 |---|---|---|---|---|---|
@@ -76,7 +76,7 @@ The test prompts were never used to tune the router. Each configuration was run 
 | Router without the fallback safety net | ₹85 | 36% | 0.9 s | 5.9 s | 95% |
 
 **Reading the table:**
-1. **Same quality as frontier at 39% of the cost.** Leave out voice and both pass 96% of prompts. The router looks *better* overall only because Opus 5 is too slow for a 1.5 s voice turn: it passed 19% of voice prompts versus 100% for the router. That is exactly why voice is pinned to Sarvam.
+1. **Same quality as frontier at 39% of the cost, a 61% saving** (₹91.46 vs ₹234.43 per 1,000 requests). Leave out voice and both pass 96% of prompts. The router looks *better* overall only because Opus 5 is too slow for a 1.5 s voice turn: it passed 19% of voice prompts versus 100% for the router. That is exactly why voice is pinned to Sarvam.
 2. **Always-cheapest is not the answer for English work.** Sarvam 105B passes 95% of Indian-language prompts but only 63% of English ones, mainly harder documents and compliance. That gap is why the open-weight tier exists.
 3. **Indian-language traffic is where the money is.** On Indic and Hinglish prompts the router costs **19%** of frontier, versus 62% on English prompts.
 4. **Where the traffic went:** 73% of requests to Sarvam 105B, 13% to GLM-5.3 and 14% to Opus 5, close to Part 2's 70 / 20 / 10 assumption.
@@ -86,7 +86,32 @@ The test prompts were never used to tune the router. Each configuration was run 
 
 **The router's own cost and latency** are included in every total. The rules take under 1 ms. The LLM second opinion didn't fire on this test set, because the rules were confident on every routed prompt. Real traffic will be messier, and Part 2 budgets ₹500 a month for it: at about ₹0.016 per check on Sarvam 105B, that covers roughly 30,000 checks a month.
 
-**Cross-check with Part 2.** Part 2 assumes 70% of tokens go to Sarvam, 20% to GLM and 10% to Opus, and gets a 76% saving. On this test set Opus takes a bigger share of *tokens* (27%) than of *requests* (14%), because compliance reviews are long. Applying the test set's measured mix to 50M/10M tokens gives **₹16,700 a month, a 65% saving**. So the honest range is **65–76%**, depending on how much compliance-grade work the customer sends. The test set over-samples compliance on purpose (10% of prompts); a real contact centre sends far less.
+## Three savings figures, and how they connect
+
+The README quotes three savings figures. They use different assumptions, so they are labelled and kept separate. **None of them is a validated saving;** only a real-model pilot can produce one.
+
+| Label | Saving vs all-frontier | What it is | Where it comes from |
+|---|---|---|---|
+| **Simulated benchmark result** | **61%** | Router vs always-frontier on the 40 test prompts, per request | ₹91.46 vs ₹234.43 per 1,000 requests (table above) |
+| **Reweighted scenario** | **65%** | The benchmark's measured token mix, applied to Part 2's 50M input + 10M output a month | ₹16,700 vs ₹48,100 (table below) |
+| **Planning scenario** | **76.5%** | Part 2's assumed production mix: 70 / 20 / 10 by tokens, plus 5% escalations and a ₹500 classifier budget | ₹11,304 vs ₹48,100 (Part 2) |
+
+**Step 1 → Step 2: from the benchmark to the reweighted scenario.** The benchmark measures cost per request. Part 2 fixes the token volume instead (50M in, 10M out), so the question becomes what share of those tokens each model handles. Across all 1,200 router requests, including fallback re-runs, the measured shares were:
+
+| Model | Share of input tokens | Share of output tokens | Monthly input | Monthly output | Monthly cost |
+|---|---|---|---|---|---|
+| Sarvam 105B | 59.7% | 42.4% | 29.84M × ₹29.28 | 4.24M × ₹73.20 | ₹1,184 |
+| GLM-5.3 | 21.6% | 21.0% | 10.81M × ₹126 | 2.10M × ₹396 | ₹2,192 |
+| Opus 5 | 18.7% | 36.6% | 9.36M × ₹480 | 3.66M × ₹2,410 | ₹13,324 |
+| **Total** | 100% | 100% | 50M | 10M | **₹16,700** |
+
+Saving vs ₹48,100 all-frontier: **65.3%**. Fallback re-runs are already inside these shares. Router overhead is excluded because the LLM classifier did not fire on the test set. `python3 evaluate.py` regenerates this table.
+
+**Step 2 → Step 3: from the reweighted to the planning scenario.** Two assumptions change:
+- **Less compliance work.** The test set deliberately over-samples compliance review (10% of prompts). Those prompts are pinned to Opus and write long answers, which is why Opus takes 36.6% of output tokens above. The planning scenario assumes a production contact centre where Opus handles 10% of tokens, plus a separate 5% escalation buffer.
+- **Router overhead budgeted separately:** ₹500 a month for the classifier.
+
+**How to read the range.** The gap between 65% and 76.5% is almost entirely the question *"how much compliance-grade work does this customer send?"* That is a discovery question for the customer, not something this benchmark can settle.
 
 ## What the quality measure does *not* capture
 
@@ -159,7 +184,7 @@ For real models, set `SARVAM_*`, `OPEN_*` and `FRONTIER_*` (each `_BASE_URL`, `_
 # Part 2: The economics
 
 **Customer:** 50 million input and 10 million output tokens a month.
-**The three configurations** are the same three as in the Part 1 results: all-cheapest, all-frontier and routed.
+**The three configurations** are the same three as in the Part 1 results: all-cheapest, all-frontier and routed. The routed figure is the **planning scenario** (see "Three savings figures" in Part 1): it rests on an assumed production mix, not a measured one.
 
 ## The four numbers
 
@@ -168,7 +193,7 @@ For real models, set `SARVAM_*`, `OPEN_*` and `FRONTIER_*` (each `_BASE_URL`, `_
 | All frontier (Claude Opus 5) | **₹48,100** |
 | All cheapest (Sarvam 105B) | **₹2,196** |
 | Routed (70% Sarvam / 20% GLM-5.3 / 10% Opus) | **₹11,304** |
-| **Saving: routed vs all-frontier** | **76%** |
+| **Saving: routed vs all-frontier (planning scenario)** | **76.5%** |
 
 ## How the routed number is built
 
@@ -184,7 +209,7 @@ For real models, set `SARVAM_*`, `OPEN_*` and `FRONTIER_*` (each `_BASE_URL`, `_
 ## Assumptions
 
 - **Prices per 1M tokens (input / output):** Sarvam 105B ₹29.28 / ₹73.20; GLM-5.3 ₹126 / ₹396; Opus 5 ₹480 / ₹2,410.
-- **70 / 20 / 10 split by tokens,** in line with Part 1, where the router sent 73% / 13% / 14% of requests.
+- **70 / 20 / 10 split by tokens** is an assumed production mix. It is *not* the Part 1 measurement: there the router sent 73% / 13% / 14% of *requests* but, because compliance answers are long, 59.7% / 21.6% / 18.7% of *input* tokens and 42.4% / 21.0% / 36.6% of *output* tokens. The planning mix assumes less compliance work than the test set.
 - **5% of tokens escalate** and are re-run on Opus 5. This is a deliberate buffer: Part 1 measured a 2% fallback rate.
 - **The same token count on every model.** In reality Indian-language text uses fewer tokens on Sarvam's tokenizer, so this is conservative.
 - **Why DeepSeek V4 Flash was left out:** it is cheaper (₹1,584 a month all-in), but it's in beta and a hard sell to BFSI and government buyers.
