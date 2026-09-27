@@ -159,8 +159,141 @@ For real models, set `SARVAM_*`, `OPEN_*` and `FRONTIER_*` (each `_BASE_URL`, `_
 
 # Part 2: The economics
 
-*(to be added)*
+**Customer:** 50 million input and 10 million output tokens a month.
+**The three configurations** are the same three as in the Part 1 results: all-cheapest, all-frontier and routed.
+
+## The four numbers
+
+| Configuration | Monthly cost |
+|---|---|
+| All frontier (Claude Opus 5) | **₹48,100** |
+| All cheapest (Sarvam 105B) | **₹2,196** |
+| Routed (70% Sarvam / 20% GLM-5.3 / 10% Opus) | **₹11,304** |
+| **Saving: routed vs all-frontier** | **76%** |
+
+## How the routed number is built
+
+| Line | Tokens | Cost |
+|---|---|---|
+| Sarvam 105B | 35M in + 7M out | ₹1,537 |
+| GLM-5.3 | 10M in + 2M out | ₹2,052 |
+| Opus 5 | 5M in + 1M out | ₹4,810 |
+| Escalations (5% of volume re-run on Opus 5) | 2.5M in + 0.5M out | ₹2,405 |
+| Router's classifier | about 30,000 second-opinion checks on Sarvam 105B | ₹500 |
+| **Total** | | **₹11,304** |
+
+## Assumptions
+
+- **Prices per 1M tokens (input / output):** Sarvam 105B ₹29.28 / ₹73.20; GLM-5.3 ₹126 / ₹396; Opus 5 ₹480 / ₹2,410.
+- **70 / 20 / 10 split by tokens,** in line with Part 1, where the router sent 73% / 13% / 14% of requests.
+- **5% of tokens escalate** and are re-run on Opus 5. This is a deliberate buffer: Part 1 measured a 2% fallback rate.
+- **The same token count on every model.** In reality Indian-language text uses fewer tokens on Sarvam's tokenizer, so this is conservative.
+- **Why DeepSeek V4 Flash was left out:** it is cheaper (₹1,584 a month all-in), but it's in beta and a hard sell to BFSI and government buyers.
+
+## Things a reviewer will ask
+
+- **"All-Sarvam is ₹2,196. Why not just use that?"** Because quality drops where it matters. In Part 1, Sarvam alone passed 95% of Indian-language prompts but only 63% of English ones, mostly harder documents and compliance.
+- **"All open-weight (GLM-5.3) is ₹10,260, about the same as routed. Why route?"** GLM-5.3 is in beta, it still misses the hardest 10% of queries, and it is weaker in Indian languages. Routing keeps frontier quality on the requests that need it. **The router is a quality floor, not just a cost cut.**
+- **"How sure is the 76%?"** Applying Part 1's measured token mix to the same volumes gives ₹16,700, a 65% saving. Part 1's test set deliberately over-samples long compliance reviews that are pinned to Opus. **Honest range: 65–76%,** depending on how much compliance-grade work the customer sends.
+
+---
 
 # Part 3: Business questions
 
-*(to be added)*
+### 1. Pricing for a ₹2 crore a year BFSI account
+
+**Pick: per-model pass-through with a platform margin.** The bank pays each routed model's rate plus our margin.
+
+- **Trust.** Every call shows which model served it and what it cost (the Part 1 log). With a blended rate, a bank assumes we are quietly routing to cheap models.
+- **No margin bleed.** If traffic shifts to complex fraud or legal work, revenue rises with cost, so Sarvam never absorbs a mix shift.
+- **Chargeback.** KYC, collections, wealth and support can each be billed for exactly what they used.
+
+**Illustrative maths:** everything on the frontier model would cost ₹3.5 Cr. Routing brings serving cost to about ₹1.35 Cr (39% of frontier, as measured in Part 1). With our margin the price is ₹2 Cr, so the bank saves ₹1.5 Cr and we keep about a third of revenue.
+
+**Why not the others:** a blended rate breaks if frontier fallback runs at 40% instead of 10%. A subscription caps the upside as new departments come on. Outcome pricing means arguing every month over what counts as a "good summary".
+
+### 2. Routing shrinks the tokens we bill. Build it anyway?
+
+**Yes. Revenue per token falls, but profit and account size go up.**
+
+- **If we don't, someone else will.** An open-source router or the bank's own team halves the bill, and we lose the account, not just the tokens.
+- **Margin substitution.** Reselling frontier tokens earns a thin margin. Traffic routed to our own Indic models is where we make money.
+- **Cheaper means more usage.** Call centres QA 2–5% of calls today. At a third of the cost they can summarise all of them, and use cases stuck on unit economics open up.
+- **It makes VPC and air-gapped deployments work.** Most traffic stays local, and only exceptions go to the frontier model.
+- **We own the switchboard.** Every model call runs through our gateway, which brings stickiness and visibility.
+
+### 3. The router saves 55% but adds 120 ms at p95 and loses 3% on the hardest tenth. Wrong for whom, and what goes in the contract?
+
+**Wrong for:**
+- Real-time voice. A natural turn needs under about 800 ms end to end, and 120 ms on top of speech recognition and synthesis is noticeable.
+- Real-time fraud and UPI screening, where transaction SLAs are tight.
+- High-stakes judgement: credit decisions, legal and regulatory review, claims.
+- Zero-error work such as clinical scribing or legal contract audits.
+
+**In the contract:**
+- **SLAs by workload.** Voice and compliance skip the router on fixed routes; Part 1 pins voice to Sarvam and compliance to Opus. Bulk work (summaries, KYC) accepts the 120 ms in exchange for the savings.
+- **A quality floor on a test set the bank owns,** including its hardest 500 Hinglish queries. A breach triggers frontier fallback at Sarvam's cost until the router is recalibrated.
+- **A pin list** of categories that always go to the frontier model.
+- **Service credits** for quality or latency breaches, monthly routing reports, and rollback within hours.
+
+### 4. "We will just send everything to the frontier model and eat the cost."
+
+That works at today's volume, but the bill grows with every workload you add, and in Indian languages the frontier model often uses more tokens for output that is no better. Don't trust our router, test it: run it in shadow on a week of your traffic, have your team grade the results, and decide workload by workload. If the numbers don't hold, you've lost nothing and gained a benchmark in your own languages.
+
+**First discovery question:** *"Which workloads have you shelved, or only sampled, because running them at full volume on the frontier model didn't pencil out?"* The real cost isn't the bill. It's the use cases they aren't running.
+
+### 5. OpenRouter, Not Diamond, Martian and every hyperscaler offer routing. Where does Sarvam win and lose?
+
+**Wins:**
+- **Sovereign and air-gapped deployment.** Independent routers are cloud APIs, and hyperscalers route within their own catalogue. Neither runs inside a bank's rack.
+- **Indic depth.** Our own models, Indian-language evaluations and cheaper tokenization mean routing can improve quality, not just cost.
+- **We own the cheap tier.** We set its price and can fine-tune it per customer. A broker can do neither.
+- **The full voice stack,** plus trust with government and regulators.
+
+**Loses:**
+- Breadth, and speed of access to new frontier models.
+- Less cross-model traffic to learn routing from.
+- Neutrality: we route to our own models, so customers may suspect our motives.
+- Hyperscaler bundling: cloud commits and credits.
+- English-only workloads.
+
+**Win where language, sovereignty or deployment decides the deal. Don't fight for English-only, cloud-native traffic.**
+
+### 6.
+
+*(Question 6 was missing from the copy of the brief we worked from; to be added.)*
+
+### 7. One Indian segment: first workload, week-two proof, path to ₹10 crore
+
+**Segment:** BFSI contact centres, meaning collections and service at private banks and NBFCs.
+
+**First workload:** post-call summaries and disposition tagging in Hinglish and regional languages. It is batch work, high volume, easy to measure, and today only sampled. Tagging and most summaries go to Sarvam 105B, harder English documents to GLM-5.3, and complaint and mis-selling reviews to Opus 5. This is exactly the traffic Part 1 was tested on.
+
+**Week-two proof:**
+- A shadow run on about 10,000 real calls.
+- The bank's QA team blind-grades 500 routed outputs against frontier outputs, and they land within the agreed threshold.
+- No compliance flags missed.
+- A measured drop in cost per call.
+- CISO sign-off on the deployment mode.
+
+**To ₹10 Cr:**
+- Go from sampled calls to 100% of calls, funded by the savings.
+- Add voice agents, KYC and grievance workloads to take the anchor account from ₹2 Cr to ₹4 Cr.
+- Partner with BPOs such as Firstsource, each serving several banks, to add three or four more ₹2 Cr accounts.
+
+### 8. Six months in, quality quietly degrades on the customer's most valuable 5%, and users notice first. How do we keep them?
+
+**Within 48 hours:**
+- Own it, and don't debate the data.
+- Pin that slice to the frontier model the same day; the Part 1 pin list makes this a config change.
+- Credit back the savings on affected traffic.
+- Hold a senior-level call, and deliver a written root cause within a week: model update, traffic drift, or new query types.
+
+**Fix the system:**
+- Monitor by segment, not by average, with a dashboard for the slice the customer defines as high-value.
+- Keep shadow-grading a sample of routed high-value queries against the frontier model.
+- Refresh the test set monthly and run regression tests before every update.
+- Treat edits, escalations and repeat questions as alarms.
+- Never downgrade the top 5% unless the customer opts in.
+
+Customers don't churn over one incident. They churn when they find problems before you do. Share the same dashboard, and flag the next problem first.
