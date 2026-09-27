@@ -2,7 +2,7 @@
 
 **The pitch in one line:** send each request to the cheapest model that is good enough for it, check the answer, and escalate one tier up when something visibly goes wrong.
 
-> **Honest caveat.** No API keys were available while this was built, so the three models are played by a seeded **simulator** with stated assumptions about each model's skill and speed (`router/backends.py`). The code to call the real models is included but was not run. What this proves is the **routing method and the measurement harness**, not a final savings number. Running on real models is one command once keys exist (see "How to run").
+> **Honest caveat.** No API keys were available while this was built, so the three models are played by a seeded **simulator** with stated assumptions about each model's skill and speed (`router/backends.py`). The code to call the real models is included but was not run. What this proves is the **routing method and the measurement harness**, not a final savings number. Running on real models should need only API keys and a rerun (see "How to run").
 
 ---
 
@@ -13,7 +13,7 @@
 If the request's use case is on the contract's pin list, it goes straight to the pinned model: voice goes to Sarvam 105B for speed, compliance review goes to Opus 5 for stakes. Otherwise the router reads the request and notes the task, the language and a 1–5 difficulty score. If those rules are unsure, it asks Sarvam 105B for a second opinion. It then looks up each model's chance of passing this kind of request, learned from a separate practice set, and sends the request to **the cheapest model whose chance clears the use case's quality bar**. After the answer comes back, quick checks look for a timeout, refusal, broken JSON or wrong language. If one fires, the request escalates one tier up, at most twice.
 
 
-**The quality bars and pins are contract terms**, the same ones in Part 3 Q3. They live in one table (`router/config.py`), so a customer can change them without touching code:
+**The quality bars and pins are contract terms**, the same ones in Part 3 Q3. They live in one table (`router/config.py`), so changing a bar or a pin is a one-line edit:
 
 | Use case | Rule | Why |
 |---|---|---|
@@ -28,10 +28,10 @@ If the request's use case is on the contract's pin list, it goes straight to the
 
 Every request writes one line with the route and the reason, the model, tokens, cost, latency, quality score and whether a fallback fired (`logs/router.jsonl`). Four real examples from the run:
 
-| Request | Went to | Why (as logged) | Cost | Latency | Quality |
+| Request | Went to | Why (from the log) | Cost | Latency | Quality |
 |---|---|---|---|---|---|
 | Hinglish EMI-complaint summary | Sarvam 105B | "sarvam-105b p=0.91 ≥ 0.85, cheapest that clears the bar" | ₹0.011 | 1.2 s | 0.86 |
-| English salary-slip extraction (nested JSON) | GLM-5.3 | "sarvam-105b p=0.60 < 0.90; glm-5.3 p=0.99 ≥ 0.90" | ₹0.055 | 2.0 s | 0.82 |
+| English salary-slip extraction (nested JSON) | GLM-5.3 | "sarvam-105b p=0.60 < 0.90; glm-5.3 p=0.996 ≥ 0.90" | ₹0.055 | 2.0 s | 0.82 |
 | Hindi voice turn (balance query) | Sarvam 105B | "pinned: voice_agent always goes to sarvam-105b" | ₹0.005 | 0.96 s | 0.92 |
 | AML structuring review | Opus 5 | "pinned: compliance_review always goes to opus-5" | ₹0.61 | 6.8 s | 0.80 |
 
@@ -46,11 +46,11 @@ python3 route.py --use-case call_summary "Summarise this call in English. Custom
 
 | Problem | How it's spotted | What the router does |
 |---|---|---|
-| **Timeout** | No answer in 20 s (text) or within the 1.5 s voice budget | Escalate one tier up **if it can still finish in time**. If not (voice), return a graceful "let me connect you to an agent" and log it. Input tokens of the timed-out call are assumed billed. |
-| **Refusal** | "I'm sorry, I can't…" at the start of the answer | Escalate one tier up: smaller models often refuse over-cautiously. **If Opus 5 also refuses, the refusal stands** and is flagged for human review, because that is usually a real policy line. |
+| **Timeout** | No answer in 20 s (text) or within the 1.5 s voice budget | Escalate one tier up **if it can still finish in time**. If not (voice), the request ends as a logged timeout, and the voice app hands the caller to an agent. Input tokens of the timed-out call are assumed billed. |
+| **Refusal** | "I'm sorry, I can't…" at the start of the answer | Escalate one tier up: smaller models often refuse over-cautiously. **If Opus 5 also refuses, the refusal stands** and is logged as unresolved for human review, because that is usually a real policy line. |
 | **Broken JSON** (extraction) | JSON doesn't parse | Escalate one tier up |
 | **Wrong language** (asked for Tamil, got English) | Script check | Escalate one tier up |
-| **Plausible but wrong answer** | **Can't be seen at run time** | Not caught. Only offline grading finds these (see "What the quality measure misses"). |
+| **Plausible but wrong answer** | **Can't be seen at run time** | Not caught. Only offline grading finds these (see "What the quality measure does not capture"). |
 
 Fallbacks only ever go **up** a tier, never down.
 
@@ -68,7 +68,7 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
 1. **Same quality as frontier at 39% of the cost, a 61% saving** (₹91.46 vs ₹234.43 per 1,000 requests). Leave out voice and both pass 96% of prompts. The router looks *better* overall only because Opus 5 is too slow for a 1.5 s voice turn: it passed 19% of voice prompts versus 100% for the router. That is exactly why voice is pinned to Sarvam.
 2. **Always-cheapest is not the answer for English work.** Sarvam 105B passes 95% of Indian-language prompts but only 63% of English ones, mainly harder documents and compliance. That gap is why the open-weight tier exists.
 3. **Indian-language traffic is where the money is.** On Indic and Hinglish prompts the router costs **19%** of frontier, versus 62% on English prompts.
-4. **Where the traffic went:** 73% of requests to Sarvam 105B, 13% to GLM-5.3 and 14% to Opus 5, close to Part 2's 70 / 20 / 10 assumption.
+4. **Where the traffic went:** 73% of requests to Sarvam 105B, 13% to GLM-5.3 and 14% to Opus 5.
 5. **Typical wait falls from 2.3 s to 0.9 s; the slowest 5% doesn't improve** because compliance reviews are pinned to Opus.
 6. **Forty prompts is a small sample.** The router's pass rate ranged from 90% to 100% across the 30 runs. A real pilot needs the bank's own 500+ graded prompts.
 
@@ -89,14 +89,14 @@ The router learned its pass rates only from the 24 practice prompts; the 40 test
 |---|---|
 | **A trained "black-box" router** (learns from thousands of past comparisons) | Needs data we don't have, and it can't explain a decision in a sentence. Banks and regulators need an audit trail. The lookup table can be swapped for one later. |
 | **Always ask an LLM to classify** | Adds latency and cost to *every* request, which breaks voice. Rules go first; the LLM is asked only when they are unsure. |
-| **Always try the cheapest model first, escalate on failure** | Doubles the wait on every hard request and can't catch answers that look fine but are wrong. |
+| **Always try the cheapest model first, escalate on failure** | Wastes a call, and doubles the wait, on every hard request. |
 | **An LLM judge checking every answer live** | Doubles cost and latency. Used offline on a sample instead. |
 | **Cheapest open model as the bottom tier** (e.g. DeepSeek V4 Flash) | Cheaper per token, but in beta and a hard sell to BFSI and government buyers. Sarvam 105B is the bottom tier we own and can tune. |
 | **Blending cost and quality into one score** | More "optimal" on paper, but "cheapest model that clears the bar" maps directly onto an SLA a customer can sign. |
 
 ## Scaling inside a customer VPC or an air-gapped rack
 
-- **It's small and self-contained.** The router is a few hundred lines of Python with no outside libraries and no calls home. It runs as a small service in front of the models, and scaling means adding copies of it; the GPUs are the real cost.
+- **It's small and self-contained.** The router is about 750 lines of Python with no outside libraries and no calls home. It runs as a small service in front of the models, and scaling means adding copies of it; the GPUs are the real cost.
 - **Customer VPC:** Sarvam 105B and GLM-5.3 run inside the VPC. Opus 5 is reached over a private link only if the bank's policy allows it. A per-use-case "never leave the VPC" rule could be added to the same contract table.
 - **Air-gapped:** there is no frontier API, so the top tier becomes the largest model on the rack. The policy stays the same; only the model list changes. Cost per token becomes GPU time per token, and routing frees GPUs for other workloads.
 - **Staying calibrated without data leaving:** logs stay on-site. A monthly job re-scores a sample of the bank's own traffic, graded by their QA team, and updates the pass-rate table. Only aggregate pass rates change.
@@ -120,7 +120,7 @@ All test data is **plain text in the repo**: one CSV file, [`data/prompts.csv`](
 # Part 2: The economics
 
 **Customer:** 50 million input and 10 million output tokens a month.
-**The three configurations** are the same three as in the Part 1 results: all-cheapest, all-frontier and routed. The routed figure is the **planning scenario** (see "Three savings figures" in Part 1): it rests on an assumed production mix, not a measured one.
+**The three configurations** are the same three as in the Part 1 results: all-cheapest, all-frontier and routed. The routed figure is a **planning scenario**: it rests on an assumed production mix, not a measured one.
 
 ## The four numbers
 
@@ -146,7 +146,7 @@ All test data is **plain text in the repo**: one CSV file, [`data/prompts.csv`](
 
 - **Prices per 1M tokens (input / output):** Sarvam 105B ₹29.28 / ₹73.20; GLM-5.3 ₹126 / ₹396; Opus 5 ₹480 / ₹2,410.
 - **70 / 20 / 10 split by tokens** is an assumed production mix. It is *not* the Part 1 measurement: there the router sent 73% / 13% / 14% of *requests* but, because compliance answers are long, 59.7% / 21.6% / 18.7% of *input* tokens and 42.4% / 21.0% / 36.6% of *output* tokens. The planning mix assumes less compliance work than the test set.
-- **5% of tokens escalate** and are re-run on Opus 5. This is a deliberate buffer: Part 1 measured a 2% fallback rate.
+- **5% of tokens escalate** and are re-run on Opus 5. This is a deliberate buffer: in the Part 1 simulation, fallbacks fired on 2.2% of requests.
 - **The same token count on every model.** In reality Indian-language text uses fewer tokens on Sarvam's tokenizer, so this is conservative.
 - **Why DeepSeek V4 Flash was left out:** it is cheaper (₹1,584 a month all-in), but it's in beta and a hard sell to BFSI and government buyers.
 ---
@@ -161,7 +161,7 @@ All test data is **plain text in the repo**: one CSV file, [`data/prompts.csv`](
 - **No margin bleed.** If traffic shifts to complex fraud or legal work, revenue rises with cost, so Sarvam never absorbs a mix shift.
 - **Chargeback.** KYC, collections, wealth and support can each be billed for exactly what they used.
 
-**Illustrative maths:** everything on the frontier model would cost ₹3.5 Cr. Routing brings serving cost to about ₹1.35 Cr (39% of frontier, as measured in Part 1). With our margin the price is ₹2 Cr, so the bank saves ₹1.5 Cr and we keep about a third of revenue.
+**Illustrative maths:** everything on the frontier model would cost ₹3.5 Cr. Routing brings serving cost to about ₹1.35 Cr (39% of frontier, the Part 1 simulated benchmark and the more conservative of our figures). With our margin the price is ₹2 Cr, so the bank saves ₹1.5 Cr and we keep about a third of revenue.
 
 **Why not the others:** a blended rate breaks if frontier fallback runs at 40% instead of 10%. A subscription caps the upside as new departments come on. Outcome pricing means arguing every month over what counts as a "good summary".
 
@@ -232,7 +232,7 @@ That works at today's volume, but the bill grows with every workload you add, an
 
 **Within 48 hours:**
 - Own it, and don't debate the data.
-- Pin that slice to the frontier model the same day; the Part 1 pin list makes this a config change.
+- Pin that slice to the frontier model the same day. With the Part 1 pin list this is a config change, provided the slice is tagged (by use case or customer tier).
 - Credit back the savings on affected traffic.
 - Hold a senior-level call, and deliver a written root cause within a week: model update, traffic drift, or new query types.
 

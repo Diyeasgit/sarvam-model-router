@@ -5,7 +5,6 @@
 | always-cheapest (Sarvam 105B) | ₹8.16 | 3% | 913 ms | 2984 ms | 0.80 | 85% | 0.0% |
 | always-frontier (Opus 5) | ₹234.43 | 100% | 2348 ms | 6540 ms | 0.79 | 87% | 0.0% |
 | router | ₹91.46 | 39% | 918 ms | 6478 ms | 0.88 | 97% | 2.2% |
-| router, no fallback | ₹84.68 | 36% | 938 ms | 5851 ms | 0.86 | 95% | 0.0% |
 
 ## By language
 
@@ -49,4 +48,3 @@ All frontier at the same volume: ₹48,100. Saving: 65.3%. Fallback re-runs are 
 - always-cheapest (Sarvam 105B): cost ₹0.304–₹0.347, pass rate 72%–92%
 - always-frontier (Opus 5): cost ₹7.928–₹10.131, pass rate 80%–92%
 - router: cost ₹2.955–₹4.319, pass rate 90%–100%
-- router, no fallback: cost ₹2.532–₹4.013, pass rate 88%–100%

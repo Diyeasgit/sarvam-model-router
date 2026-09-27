@@ -1,7 +1,6 @@
 """Run the 40 held-out prompts through the baselines and the router; write the report.
 
-Policies: always-cheapest (Sarvam 105B), always-frontier (Opus 5), the router,
-and the router without fallback (shows what the safety net adds). The
+Policies: always-cheapest (Sarvam 105B), always-frontier (Opus 5) and the router. The
 simulator is re-run over 30 seeds so no result depends on one lucky draw. The
 per-request log for seed 0 is written to logs/.
 
@@ -31,7 +30,6 @@ POLICIES = [
     ("always-cheapest (Sarvam 105B)", dict(forced_model=config.CHEAPEST), {}),
     ("always-frontier (Opus 5)", dict(forced_model=config.FRONTIER), {}),
     ("router", {}, {}),
-    ("router, no fallback", {}, dict(use_fallback=False)),
 ]
 FR, RT = POLICIES[1][0], POLICIES[2][0]
 
@@ -65,7 +63,7 @@ for name, run_kw, router_kw in POLICIES:
             log["policy"], log["seed"] = name, s
             logs.append(log)
     all_logs[name] = logs
-    fname = name.split(" ")[0].replace(",", "") + ("-no-fallback" if "no fallback" in name else "")
+    fname = name.split(" ")[0]
     with open("logs/%s.jsonl" % fname, "w") as fh:
         for l in logs:
             if l["seed"] == seeds[0]:
