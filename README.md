@@ -188,13 +188,6 @@ For real models, set `SARVAM_*`, `OPEN_*` and `FRONTIER_*` (each `_BASE_URL`, `_
 - **5% of tokens escalate** and are re-run on Opus 5. This is a deliberate buffer: Part 1 measured a 2% fallback rate.
 - **The same token count on every model.** In reality Indian-language text uses fewer tokens on Sarvam's tokenizer, so this is conservative.
 - **Why DeepSeek V4 Flash was left out:** it is cheaper (₹1,584 a month all-in), but it's in beta and a hard sell to BFSI and government buyers.
-
-## Things a reviewer will ask
-
-- **"All-Sarvam is ₹2,196. Why not just use that?"** Because quality drops where it matters. In Part 1, Sarvam alone passed 95% of Indian-language prompts but only 63% of English ones, mostly harder documents and compliance.
-- **"All open-weight (GLM-5.3) is ₹10,260, about the same as routed. Why route?"** GLM-5.3 is in beta, it still misses the hardest 10% of queries, and it is weaker in Indian languages. Routing keeps frontier quality on the requests that need it. **The router is a quality floor, not just a cost cut.**
-- **"How sure is the 76%?"** Applying Part 1's measured token mix to the same volumes gives ₹16,700, a 65% saving. Part 1's test set deliberately over-samples long compliance reviews that are pinned to Opus. **Honest range: 65–76%,** depending on how much compliance-grade work the customer sends.
-
 ---
 
 # Part 3: Business questions
