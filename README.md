@@ -2,16 +2,6 @@
 
 **The pitch in one line:** send each request to the cheapest model that is good enough for it, check the answer, and escalate one tier up when something visibly goes wrong.
 
-The router uses the platform's three model classes, at the same list prices as Part 2:
-
-| Tier | Model | Price per 1M tokens (input / output) | Good at |
-|---|---|---|---|
-| Sarvam's own | **Sarvam 105B** | ₹29.28 / ₹73.20 | Indian languages, Hinglish, tagging, routine summaries |
-| Open-weight (hosted on Sarvam) | **GLM-5.3** | ₹126 / ₹396 | Harder English documents and summaries |
-| Frontier | **Claude Opus 5** | ₹480 / ₹2,410 | High-stakes review, the hardest reasoning |
-
-The test traffic is a **BFSI contact centre**, the same segment as Part 3 Q7: disposition tagging, post-call summaries, KYC and document extraction, customer notices, voice turns and compliance review. 27 of the 40 test prompts are in Indian languages or Hinglish.
-
 > **Honest caveat.** No API keys were available while this was built, so the three models are played by a seeded **simulator** with stated assumptions about each model's skill and speed (`router/backends.py`). The code to call the real models is included but was not run. What this proves is the **routing method and the measurement harness**, not a final savings number. Running on real models is one command once keys exist (see "How to run").
 
 ---
