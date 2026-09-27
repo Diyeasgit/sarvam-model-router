@@ -1,0 +1,238 @@
+{
+ "mode": "simulated",
+ "seeds": 30,
+ "policies": {
+  "always-cheapest": {
+   "all": {
+    "requests": 40,
+    "cost_usd_per_run": 0.000540651333333334,
+    "cost_usd_per_1k_req": 0.013516283333333347,
+    "router_overhead_usd_per_1k": 0.0,
+    "p50_ms": 417.1,
+    "p95_ms": 1273.9,
+    "mean_quality": 0.5514366666666667,
+    "pass_rate": 0.42333333333333334,
+    "fallback_rate": 0.0,
+    "unresolved_issue_rate": 0.26416666666666666,
+    "final_model_mix": {
+     "llama-3.1-8b": 1.0
+    }
+   },
+   "english": {
+    "requests": 19,
+    "cost_usd_per_run": 0.0002683733333333336,
+    "cost_usd_per_1k_req": 0.014124912280701769,
+    "router_overhead_usd_per_1k": 0.0,
+    "p50_ms": 448.4,
+    "p95_ms": 1323.8,
+    "mean_quality": 0.6054280701754385,
+    "pass_rate": 0.519298245614035,
+    "fallback_rate": 0.0,
+    "unresolved_issue_rate": 0.22280701754385965,
+    "final_model_mix": {
+     "llama-3.1-8b": 1.0
+    }
+   },
+   "indic_or_mixed": {
+    "requests": 21,
+    "cost_usd_per_run": 0.00027227799999999977,
+    "cost_usd_per_1k_req": 0.012965619047619035,
+    "router_overhead_usd_per_1k": 0.0,
+    "p50_ms": 392.7,
+    "p95_ms": 1157.6,
+    "mean_quality": 0.5025873015873014,
+    "pass_rate": 0.33650793650793653,
+    "fallback_rate": 0.0,
+    "unresolved_issue_rate": 0.30158730158730157,
+    "final_model_mix": {
+     "llama-3.1-8b": 1.0
+    }
+   }
+  },
+  "always-frontier": {
+   "all": {
+    "requests": 40,
+    "cost_usd_per_run": 0.07194749999999996,
+    "cost_usd_per_1k_req": 1.7986874999999987,
+    "router_overhead_usd_per_1k": 0.0,
+    "p50_ms": 2277.7,
+    "p95_ms": 7528.7,
+    "mean_quality": 0.8244275000000002,
+    "pass_rate": 0.9091666666666667,
+    "fallback_rate": 0.0,
+    "unresolved_issue_rate": 0.07916666666666666,
+    "final_model_mix": {
+     "frontier": 1.0
+    }
+   },
+   "english": {
+    "requests": 19,
+    "cost_usd_per_run": 0.04037550000000003,
+    "cost_usd_per_1k_req": 2.125026315789475,
+    "router_overhead_usd_per_1k": 0.0,
+    "p50_ms": 2555.8,
+    "p95_ms": 8177.7,
+    "mean_quality": 0.8375403508771937,
+    "pass_rate": 0.9175438596491228,
+    "fallback_rate": 0.0,
+    "unresolved_issue_rate": 0.06140350877192982,
+    "final_model_mix": {
+     "frontier": 1.0
+    }
+   },
+   "indic_or_mixed": {
+    "requests": 21,
+    "cost_usd_per_run": 0.03157200000000003,
+    "cost_usd_per_1k_req": 1.503428571428573,
+    "router_overhead_usd_per_1k": 0.0,
+    "p50_ms": 2073.3,
+    "p95_ms": 6041.2,
+    "mean_quality": 0.8125634920634927,
+    "pass_rate": 0.9015873015873016,
+    "fallback_rate": 0.0,
+    "unresolved_issue_rate": 0.09523809523809523,
+    "final_model_mix": {
+     "frontier": 1.0
+    }
+   }
+  },
+  "router": {
+   "all": {
+    "requests": 40,
+    "cost_usd_per_run": 0.03826533666666666,
+    "cost_usd_per_1k_req": 0.9566334166666666,
+    "router_overhead_usd_per_1k": 0.0010962500000000009,
+    "p50_ms": 1067.2,
+    "p95_ms": 7261.0,
+    "mean_quality": 0.8455500000000009,
+    "pass_rate": 0.9066666666666666,
+    "fallback_rate": 0.03833333333333333,
+    "unresolved_issue_rate": 0.03166666666666667,
+    "final_model_mix": {
+     "llama-3.1-8b": 0.215,
+     "sarvam-indic": 0.434,
+     "frontier": 0.278,
+     "llama-3.3-70b": 0.072
+    }
+   },
+   "english": {
+    "requests": 19,
+    "cost_usd_per_run": 0.028429712666666673,
+    "cost_usd_per_1k_req": 1.4963006666666672,
+    "router_overhead_usd_per_1k": 0.0,
+    "p50_ms": 1436.9,
+    "p95_ms": 7931.9,
+    "mean_quality": 0.8494421052631587,
+    "pass_rate": 0.9140350877192982,
+    "fallback_rate": 0.028070175438596492,
+    "unresolved_issue_rate": 0.03508771929824561,
+    "final_model_mix": {
+     "llama-3.1-8b": 0.263,
+     "sarvam-indic": 0.249,
+     "frontier": 0.389,
+     "llama-3.3-70b": 0.098
+    }
+   },
+   "indic_or_mixed": {
+    "requests": 21,
+    "cost_usd_per_run": 0.009835623999999987,
+    "cost_usd_per_1k_req": 0.468363047619047,
+    "router_overhead_usd_per_1k": 0.0020880952380952396,
+    "p50_ms": 900.0,
+    "p95_ms": 5275.3,
+    "mean_quality": 0.8420285714285726,
+    "pass_rate": 0.9,
+    "fallback_rate": 0.047619047619047616,
+    "unresolved_issue_rate": 0.02857142857142857,
+    "final_model_mix": {
+     "llama-3.1-8b": 0.171,
+     "sarvam-indic": 0.602,
+     "frontier": 0.178,
+     "llama-3.3-70b": 0.049
+    }
+   }
+  },
+  "router-no-fallback": {
+   "all": {
+    "requests": 40,
+    "cost_usd_per_run": 0.03536555333333333,
+    "cost_usd_per_1k_req": 0.8841388333333331,
+    "router_overhead_usd_per_1k": 0.0010962500000000009,
+    "p50_ms": 1060.7,
+    "p95_ms": 6812.4,
+    "mean_quality": 0.8296841666666678,
+    "pass_rate": 0.8883333333333333,
+    "fallback_rate": 0.0,
+    "unresolved_issue_rate": 0.056666666666666664,
+    "final_model_mix": {
+     "llama-3.1-8b": 0.225,
+     "sarvam-indic": 0.445,
+     "frontier": 0.254,
+     "llama-3.3-70b": 0.076
+    }
+   },
+   "english": {
+    "requests": 19,
+    "cost_usd_per_run": 0.027564702666666666,
+    "cost_usd_per_1k_req": 1.4507738245614035,
+    "router_overhead_usd_per_1k": 0.0,
+    "p50_ms": 1378.6,
+    "p95_ms": 7931.9,
+    "mean_quality": 0.8332438596491233,
+    "pass_rate": 0.8964912280701754,
+    "fallback_rate": 0.0,
+    "unresolved_issue_rate": 0.06140350877192982,
+    "final_model_mix": {
+     "llama-3.1-8b": 0.263,
+     "sarvam-indic": 0.263,
+     "frontier": 0.368,
+     "llama-3.3-70b": 0.105
+    }
+   },
+   "indic_or_mixed": {
+    "requests": 21,
+    "cost_usd_per_run": 0.007800850666666672,
+    "cost_usd_per_1k_req": 0.3714690793650796,
+    "router_overhead_usd_per_1k": 0.0020880952380952396,
+    "p50_ms": 931.4,
+    "p95_ms": 4188.1,
+    "mean_quality": 0.8264634920634928,
+    "pass_rate": 0.8809523809523809,
+    "fallback_rate": 0.0,
+    "unresolved_issue_rate": 0.05238095238095238,
+    "final_model_mix": {
+     "llama-3.1-8b": 0.19,
+     "sarvam-indic": 0.61,
+     "frontier": 0.151,
+     "llama-3.3-70b": 0.049
+    }
+   }
+  }
+ },
+ "per_seed_range": {
+  "always-cheapest": {
+   "cost_min": 0.00049719,
+   "cost_max": 0.00059311,
+   "pass_min": 0.275,
+   "pass_max": 0.6
+  },
+  "always-frontier": {
+   "cost_min": 0.062961,
+   "cost_max": 0.07832100000000003,
+   "pass_min": 0.825,
+   "pass_max": 0.975
+  },
+  "router": {
+   "cost_min": 0.027204930000000006,
+   "cost_max": 0.04813366999999998,
+   "pass_min": 0.825,
+   "pass_max": 0.975
+  },
+  "router-no-fallback": {
+   "cost_min": 0.025717270000000007,
+   "cost_max": 0.040659530000000006,
+   "pass_min": 0.775,
+   "pass_max": 1.0
+  }
+ }
+}
