@@ -221,7 +221,7 @@ That works at today's volume, but the bill grows with every workload you add, an
 **Wins:**
 - **Sovereign and air-gapped deployment.** Independent routers are cloud APIs, and hyperscalers route within their own catalogue. Neither runs inside a bank's rack.
 - **Indic depth.** Our own models, Indian-language evaluations and cheaper tokenization mean routing can improve quality, not just cost.
-- **We own the cheap tier.** We set its price and can fine-tune it per customer. A broker can do neither.
+- **We own the cheap tier.** We set its price and can fine-tune it per customer. A middleman can do neither.
 - **The full voice stack,** plus trust with government and regulators.
 
 **Loses:**
