@@ -214,7 +214,7 @@ For real models, set `SARVAM_*`, `OPEN_*` and `FRONTIER_*` (each `_BASE_URL`, `_
 
 That works at today's volume, but the bill grows with every workload you add, and in Indian languages the frontier model often uses more tokens for output that is no better. Don't trust our router, test it: run it in shadow on a week of your traffic, have your team grade the results, and decide workload by workload. If the numbers don't hold, you've lost nothing and gained a benchmark in your own languages.
 
-**First discovery question:** *"Which workloads have you shelved, or only sampled, because running them at full volume on the frontier model didn't pencil out?"* The real cost isn't the bill. It's the use cases they aren't running.
+**First discovery question:** *"Which workloads have you discontinued, or only sampled, because the economics of running them at full volume on the frontier model didn't work out?"*
 
 ### 5. OpenRouter, Not Diamond, Martian and every hyperscaler offer routing. Where does Sarvam win and lose?
 
