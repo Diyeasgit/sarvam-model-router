@@ -185,7 +185,7 @@ All test data is **plain text in the repo**: one CSV file, [`data/prompts.csv`](
 - Zero-error work such as clinical scribing or legal contract audits.
 
 **In the contract:**
-- **SLAs by workload.** Voice and compliance skip the router on fixed routes; Part 1 pins voice to Sarvam and compliance to Opus. Bulk work (summaries, KYC) accepts the 120 ms in exchange for the savings.
+- **SLAs by workload.** Voice and compliance skip the router on fixed routes; For eg: voice to Sarvam and compliance to Opus. Bulk work (summaries, KYC) accepts the 120 ms in exchange for the savings.
 - **A quality floor on a test set the bank owns,** including its hardest 500 Hinglish queries. A breach triggers frontier fallback at Sarvam's cost until the router is recalibrated.
 - **A pin list** of categories that always go to the frontier model.
 - **Service credits** for quality or latency breaches, monthly routing reports, and rollback within hours.
