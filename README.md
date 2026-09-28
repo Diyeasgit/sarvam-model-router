@@ -158,7 +158,7 @@ All test data is **plain text in the repo**: one CSV file, [`data/prompts.csv`](
 
 **Pick: per-model pass-through with a platform margin.** The bank pays each routed model's rate plus our margin.
 
-- **Trust.** Every call shows which model served it and what it cost (the Part 1 log). With a blended rate, a bank assumes we are quietly routing to cheap models.
+- **Trust.** Every call shows which model served it and what it cost. With a blended rate, a bank assumes we are quietly routing to cheap models.
 - **No margin bleed.** If traffic shifts to complex fraud or legal work, revenue rises with cost, so Sarvam never absorbs a mix shift.
 - **Chargeback.** KYC, collections, wealth and support can each be billed for exactly what they used.
 
